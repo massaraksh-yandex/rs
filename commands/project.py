@@ -1,5 +1,5 @@
 from os import path
-from src.projects_repo import getProjects
+from src.repo import getProjects
 from platform.exception import WrongOptions, WrongTargets
 from platform.command import Command
 

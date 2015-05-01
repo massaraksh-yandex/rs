@@ -5,7 +5,7 @@ from os.path import dirname, realpath
 
 from platform.exception import WrongTargets
 from platform.command import Command
-from src.projects_repo import Repo
+from src.repo import Repo
 from platform import utils
 
 

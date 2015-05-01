@@ -3,7 +3,7 @@ import sys
 from platform.exception import WrongTargets
 from platform.command import Command
 from src.settings import Settings
-from src.projects_repo import getProjects
+from src.repo import getProjects
 from commands.get import Get
 
 

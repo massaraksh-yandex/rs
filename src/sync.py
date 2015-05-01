@@ -3,7 +3,7 @@ from os.path import isfile
 import subprocess
 
 from src.settings import Settings
-from src.projects_repo import Repo
+from src.repo import Repo
 
 
 class SyncData:
