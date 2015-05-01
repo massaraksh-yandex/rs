@@ -1,5 +1,5 @@
 from os import path
-from src.projects_repo import Repo
+from src.projects_repo import getProjects
 from platform.exception import WrongOptions, WrongTargets
 from platform.command import Command
 
@@ -55,7 +55,7 @@ def createQmakeProject(name, full_path):
     headers = findAll(path, findAllFiles, ['*.hpp', '*.hxx', '*.hh', '*.h'])
     direcroties = findAll(path, findAllDirs, ['*'])
 
-    createProjectFile(name, path, sources, headers, dirs)
+    createProjectFile(name, path, sources, headers, direcroties)
 
 
 class List(Command):
@@ -71,7 +71,7 @@ class List(Command):
             raise WrongOptions('Странные аргументы: ' + str(p.options))
 
     def process(self, p):
-        for k, v in Repo.projects.items():
+        for k, v in getProjects().items():
             print("project: " + k)
 
 
@@ -100,18 +100,20 @@ class Create(Command):
         print(str)
 
 class Project(Command):
+    commands = {'create': Create, 'list': List}
+
     def help(self):
         print('rs project create')
         print('rs project list')
 
     def check(self, p):
         if len(p.targets) == 0:
-            raise WrongTargets('Неверное число целей: ' + str(p.targets))
+            raise WrongTargets('')
+
 
     def process(self, p):
-        mapped = {'create': Create, 'list': List}
-        command = p.targets[0]
-        v = mapped[command]()
+        cmd = p.targets[0]
+        v = self.commands[cmd]()
         v.execute(p.argv[1:])
 
 

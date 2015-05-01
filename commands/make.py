@@ -3,12 +3,12 @@ import sys
 from platform.exception import WrongTargets
 from platform.command import Command
 from src.settings import Settings
-from src.projects_repo import Repo
+from src.projects_repo import getProjects
 from commands.get import Get
 
 
 def make(self, make_targets, name, makefile_path):
-    prj = Repo.projects[name]
+    prj = getProjects()[name]
     sp = subprocess.Popen(['ssh', 'wmidevaddr', 'cd /home/massaraksh/ws; readlink -m .'], stdout=subprocess.PIPE)
     path = sp.stdout.readlines()[0].decode("utf-8").rstrip()
     jobs = 'CORENUM=$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)'
@@ -48,11 +48,11 @@ class Make(Command):
             if len(projects) != 2:
                 raise WrongTargets(
                     'Слишком много параметров для сборки проекта с указанием пути до Makefile: ' + str(projects))
-            if projects[0] not in Repo.projects:
+            if projects[0] not in getProjects():
                 raise WrongTargets('Нет такого проекта: ' + projects[0])
         else:
             for proj in projects:
-                if proj not in Repo.projects:
+                if proj not in getProjects():
                     raise WrongTargets('Нет такого проекта: ' + proj)
 
     def syncIncludes(self, project):

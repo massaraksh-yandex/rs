@@ -27,8 +27,8 @@ class Get(Command):
                 sd = SyncData(arg)
                 sd.show()
                 self.syncPath(sd.exclude_from, sd.path, sd.path, sd.host)
-        except KeyError:
-            self.error('Нет такого проекта: ' + arg)
+        except KeyError as arg:
+            self.error('Нет такого проекта: ' + str(arg))
 
 
 module_commands = {'get': Get}

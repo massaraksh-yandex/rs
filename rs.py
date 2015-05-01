@@ -10,7 +10,6 @@ from platform import utils
 
 
 class Rs(Command):
-
     commands = None
 
     def __init__(self):
@@ -21,8 +20,8 @@ class Rs(Command):
         print('rs написать что-нибудь')
 
     def check(self, p):
-        if len(p.targets) == 0:
-            raise WrongTargets('Неверное число целей: {0}'.format(str(p.targets)))
+        if p.targets[0] not in self.commands:
+            raise WrongTargets('Нет такой цели: {0}'.format(t))
 
     def process(self, p):
         cmd = p.argv[0]
