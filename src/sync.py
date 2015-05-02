@@ -3,19 +3,19 @@ from os.path import isfile
 import subprocess
 
 from src.settings import Settings
-from src.repo import Repo
+from src.repo import getProjects
 
 
 class SyncData:
-    project = {}
+    project = None
     path = ''
     host = ''
     exclude_from = ''
 
     def __init__(self, name):
-        self.project = Repo.projects[name]
-        self.path = self.project['path']
-        self.host = self.project['host']
+        self.project = getProjects()[name]
+        self.path = self.project.path
+        self.host = self.project.host
         exc = join(Settings.CONFIG_DIR, Settings.EXCLUDE_FILE) if not isfile(
             join(self.path, Settings.EXCLUDE_FILE)) else join(self.path, Settings.EXCLUDE_FILE)
         self.exclude_from = '--exclude-from={0}'.format(exc)

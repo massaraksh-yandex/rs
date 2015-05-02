@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -u
 import sys
 import codecs
 from os.path import dirname, realpath
 
 from platform.exception import WrongTargets
 from platform.command import Command
-from src.repo import Repo
 from platform import utils
 
 
@@ -32,7 +31,6 @@ if __name__ == "__main__":
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
 
-    Repo.parse()
     Rs().execute(sys.argv[1:])
 
 

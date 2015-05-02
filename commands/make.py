@@ -1,59 +1,76 @@
 import subprocess
 import sys
-from platform.exception import WrongTargets
+from platform.exception import WrongTargets, WrongDelimers
+from platform.params import Params
 from platform.command import Command
+from platform.delimer import SingleDelimer
 from src.settings import Settings
 from src.repo import getProjects
 from commands.get import Get
 
 
-def make(self, make_targets, name, makefile_path):
-    prj = getProjects()[name]
-    sp = subprocess.Popen(['ssh', 'wmidevaddr', 'cd /home/massaraksh/ws; readlink -m .'], stdout=subprocess.PIPE)
-    path = sp.stdout.readlines()[0].decode("utf-8").rstrip()
+def make(make_targets, project, makefile_path = ''):
+    def getRealWorkspacePath(proj):
+        sp = subprocess.Popen(['ssh', prj.host, 'cd /home/massaraksh/ws; readlink -m .'], stdout=subprocess.PIPE)
+        return sp.stdout.readlines()[0].decode("utf-8").rstrip()
+
+    prj = getProjects()[project]
+
+    cd = 'cd {0}/{1}/{2}'.format(prj.path, project, makefile_path)
     jobs = 'CORENUM=$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)'
-    command = "cd {0}/{1}/{2}; {3}; make {4} -j$CORENUM 2>&1".format(prj['path'], name, makefile_path, jobs,
-                                                                     ' '.join(make_targets))
-    proc = subprocess.Popen(['ssh', prj['host'], command], stdout=subprocess.PIPE)
+    make = 'make {0} -j$CORENUM 2>&1'.format(' '.join(make_targets))
+
+    command = "{0}; {1}; {2}".format(cd, jobs, make)
+
+    path = getRealWorkspacePath(prj)
+    proc = subprocess.Popen(['ssh', prj.host, command], stdout=subprocess.PIPE)
     while proc.poll() is None:
         line = proc.stdout.readline().decode("utf-8")
         line = line.replace(path, '/Users/massaraksh/ws')
         line = line.replace('/home/massaraksh/', '/Users/massaraksh/')
         sys.stderr.write(line)
 
-
 class Make(Command):
+    makeTargets = None
+    projects = None
+
+    def __init__(self):
+        self.makeTargets = []
+        self.projects = []
+
     def help(self):
         print('rs make - вызывает Makefile на удалённой машине')
         print('rs make цели -- названия_проектов')
         print('rs make цели - название_проекта папка_с_Makefile')
         print('rs make --help')
 
-    def check(self, p):
-        if len(p.delimer) + len(p.doubleDelimer) != 1:
-            print(str(p.delimer) + ' ' + str(p.doubleDelimer))
-            raise WrongTargets('Неверное число разделителей: ' + str(p.argv))
+    def check(self, p: Params):
+        if len(p.delimer) != 1:
+            raise WrongDelimers('Неверное число разделителей: ' + str(len(p.delimer)))
 
-        doubleDelimer = len(p.doubleDelimer) != 0
-        sepIndex = p.doubleDelimer[0] if doubleDelimer else p.delimer[0]
+        ind = p.delimer[0].index
 
-        if sepIndex == 0:
-            raise WrongTargets('отсутствуют цели Makefile' + str(p.argv))
-        if sepIndex == len(p.argv) - 1:
-            raise WrongTargets('отсутствуют проеты для сборки: ' + str(p.argv))
+        if ind == 0:
+            raise WrongTargets('Отсутствуют цели Makefile: ' + str(p.argv))
+        if ind >= len(p.targets):
+            raise WrongTargets('Отсутствуют проекты для сборки: ' + str(p.argv))
 
-        projects = p.argv[sepIndex + 1:]
+        self.makeTargets = p.targets[:ind]
+        self.projects = p.targets[ind:]
 
-        if not doubleDelimer:
-            if len(projects) != 2:
-                raise WrongTargets(
-                    'Слишком много параметров для сборки проекта с указанием пути до Makefile: ' + str(projects))
-            if projects[0] not in getProjects():
-                raise WrongTargets('Нет такого проекта: ' + projects[0])
+        availableProjects = getProjects()
+        if type(p.delimer) is SingleDelimer:
+            if len(self.projects) != 2:
+                raise WrongTargets('Слишком много параметров для сборки'
+                                   ' проекта с указанием пути до Makefile: ' + str(self.projects))
+            proj = self.projects[0]
+            if proj not in availableProjects:
+                raise WrongTargets('Нет такого проекта: ' + proj)
         else:
-            for proj in projects:
-                if proj not in getProjects():
+            for proj in self.projects:
+                if proj not in availableProjects:
                     raise WrongTargets('Нет такого проекта: ' + proj)
+
 
     def syncIncludes(self, project):
         print('Синхронизирую заголовки...')
@@ -61,22 +78,15 @@ class Make(Command):
         get.syncPath(Settings.EXCLUDE_FROM, '~/ws/include', '~/ws/include', 'wmidevaddr')
 
     def process(self, p):
-        doubleDelimer = len(p.doubleDelimer) != 0
-        sepIndex = p.doubleDelimer[0] if doubleDelimer else p.delimer[0]
-
-        make_targets = p.argv[0:sepIndex]
-        targets = p.argv[sepIndex + 1:]
-
-        if doubleDelimer:
-            for project in targets:
-                print('Проект ' + project)
-                make(make_targets, project, '')
-                self.syncIncludes(project)
+        if type(p.delimer) is SingleDelimer:
+            print('Проект ' + self.targets[0])
+            make(self.makeTargets, self.projects[0], self.projects[1])
+            self.syncIncludes(self.projects[0])
         else:
-            print('Проект ' + targets[0])
-            make(make_targets, targets[0], targets[1])
-            self.syncIncludes(targets[0])
-
+            for proj in self.projects:
+                print('Проект ' + proj)
+                make(self.makeTargets, proj)
+                self.syncIncludes(proj)
 
 module_commands = {'make': Make}
 

@@ -1,61 +1,11 @@
-from os import path
-from src.repo import getProjects
+from src.repo import getProjects, serializeProject, printProject
+from src import repo
 from platform.exception import WrongOptions, WrongTargets
 from platform.command import Command
-
-
-def findAllImpl(path, regexp, direcroty):
-    return []
-
-
-def findAllFiles(path, regexp):
-    return findAllImpl(path, regexp, False)
-
-
-def findAllDirs(path, regexp):
-    return findAllImpl(path, regexp, True)
-
-
-def findAll(path, finder, types):
-    ret = []
-    for t in types:
-        finder(path, t)
-    return ret
-
-
-def createQtcreatorImportProject(name, full_path):
-    def createFilesFile(name, path, content):
-        pass
-
-    def createIncludesFile(name, path, content):
-        pass
-
-    def createConfigFile(name, path):
-        pass  # empty
-
-    def createCreatorFile(name, path):
-        pass  # just [General]
-
-    files = findAll(path, findAllFiles, ['*.cpp', '*.cxx', '*.cc', '*.c',
-                                         '*.hpp', '*.hxx', '*.hh', '*.h'])
-
-    direcroties = findAll(path, findAllDirs, ['*'])
-
-    createFilesFile(name, path, files)
-    createIncludesFile(name, path, direcroties)
-    createConfigFile(name, path)
-    createCreatorFile(name, path)
-
-
-def createQmakeProject(name, full_path):
-    def createProjectFile(name, path, sources, headers, dirs):
-        pass  # TEMPLATE = aux
-
-    sources = findAll(path, findAllFiles, ['*.cpp', '*.cxx', '*.cc', '*.c'])
-    headers = findAll(path, findAllFiles, ['*.hpp', '*.hxx', '*.hh', '*.h'])
-    direcroties = findAll(path, findAllDirs, ['*'])
-
-    createProjectFile(name, path, sources, headers, direcroties)
+from platform.delimer import checkNoDelimers
+from src.utils import readLineWithPrompt
+from os import remove
+from src.settings import getProjectPathByName
 
 
 class List(Command):
@@ -64,6 +14,7 @@ class List(Command):
         print('rs project list [--help]')
 
     def check(self, p):
+        checkNoDelimers(p)
         if len(p.targets) != 0:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
 
@@ -75,10 +26,58 @@ class List(Command):
             print("project: " + k)
 
 
-class Create(Command):
-    def projectPath(self, name):
-        return '/home/massaraksh/ws/src'
+class Show(Command):
+    def help(self):
+        print('show проект - показывает информацию о проекте')
+        print('rs project show [проект]')
+        print('rs project show --help')
+        print('[проект] - название проекта')
 
+    def check(self, p):
+        checkNoDelimers(p)
+        if len(p.targets) != 1:
+            raise WrongTargets('Неверное число целей: ' + str(p.targets))
+        if len(p.options) != 0:
+            raise WrongOptions('Странные аргументы: ' + str(p.options))
+        if p.targets[0] not in getProjects():
+            raise WrongTargets('Проект {0} не существует'.format(p.targets[0]))
+
+    def process(self, p):
+        a = getProjects().get(p.targets[0])
+        #print (str(a.))
+        printProject(a)
+
+
+class Remove(Command):
+    def help(self):
+        print('remove проект - удаляет запись о проекте')
+        print('rs project remove [проект]')
+        print('rs project remove --help')
+        print('[проект] - название проекта')
+
+    def check(self, p):
+        checkNoDelimers(p)
+        if len(p.targets) != 1:
+            raise WrongTargets('Неверное число целей: ' + str(p.targets))
+        if len(p.options) != 0:
+            raise WrongOptions('Странные аргументы: ' + str(p.options))
+        if p.targets[0] not in getProjects():
+            raise WrongTargets('Проект {0} не существует'.format(p.targets[0]))
+
+    def process(self, p):
+        name = p.targets[0]
+        answer = readLineWithPrompt('Удалить проект {0}? (yes/no)'.format(name), 'no')
+
+        if answer != 'yes':
+            print('Отмена...')
+            return
+
+        remove(getProjectPathByName(name))
+
+        print('Проект {0} удалён'.format(name))
+
+
+class Create(Command):
     def help(self):
         print('create проект - создаёт запись о новом проекте')
         print('rs project create [проект]')
@@ -86,21 +85,32 @@ class Create(Command):
         print('[проект] - название проекта')
 
     def check(self, p):
+        checkNoDelimers(p)
         if len(p.targets) != 1:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
         if len(p.options) != 0:
             raise WrongOptions('Странные аргументы: ' + str(p.options))
+        if p.targets[0] in getProjects():
+            raise WrongTargets('Проект {0} уже существует'.format(p.targets[0]))
 
     def process(self, p):
-        name = p.targets[0]
-        # with open(join(Settings.REMOTES_DIR, name+'.py'), 'w') as f:
-        str = "\"path\":\"{0}\", \"host\": \"{1}\", \"type\":\"{2}\"".format(self.projectPath(name), 'wmidevaddr',
-                                                                             'qtcreator_import')
-        # f.write("data = {" + str + " } ")
-        print(str)
+        project = repo.Project(p.targets[0])
+
+        project.path = readLineWithPrompt('Путь', '/home/massaraksh/ws')
+        project.host = readLineWithPrompt('Хост', 'wmidevaddr')
+        project.project_type = readLineWithPrompt('Тип проекта', 'qtcreator_import')
+        answer = readLineWithPrompt('Всё верно (yes/no)', 'no')
+
+        if answer != 'yes':
+            print('Отмена...')
+            return
+
+        serializeProject(project)
+        print('Проект {0} добавлен'.format(project.name))
+
 
 class Project(Command):
-    commands = {'create': Create, 'list': List}
+    commands = {'create': Create, 'list': List, 'rm': Remove, 'show': Show}
 
     def help(self):
         print('rs project create')
@@ -108,7 +118,7 @@ class Project(Command):
 
     def check(self, p):
         if len(p.targets) == 0:
-            raise WrongTargets('')
+            raise WrongTargets('Отсутствуют цели')
 
 
     def process(self, p):

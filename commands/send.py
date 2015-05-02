@@ -1,5 +1,6 @@
 from src.sync import SyncData, callSync
 from platform.exception import WrongOptions, WrongTargets
+from platform.delimer import checkNoDelimers
 from platform.command import Command
 from src.settings import Settings
 from os.path import expanduser
@@ -12,6 +13,7 @@ class Send(Command):
         print('rs send --help')
 
     def check(self, p):
+        checkNoDelimers(p)
         if len(p.targets) == 0:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
 

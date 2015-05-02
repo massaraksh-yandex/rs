@@ -1,6 +1,7 @@
 from src.sync import SyncData, callSync
 from platform.exception import WrongTargets, WrongOptions
 from platform.command import Command
+from platform.delimer import checkNoDelimers
 from src.settings import Settings
 from os.path import expanduser
 
@@ -9,9 +10,10 @@ class Get(Command):
     def help(self):
         print('rs get - получает файлы с удалённого сервера')
         print('rs get название_проекта')
-        print('rs send --help')
+        print('rs get --help')
 
     def check(self, p):
+        checkNoDelimers(p)
         if len(p.targets) == 0:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
 
