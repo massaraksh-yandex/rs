@@ -11,6 +11,9 @@ class List(Command):
     def __init__(self, parent):
         super().__init__(parent)
 
+    def name(self):
+        return 'list'
+
     def help(self):
         print('list - показывает список проектов')
         print('rs project list [--help]')
@@ -31,6 +34,9 @@ class List(Command):
 class Show(Command):
     def __init__(self, parent):
         super().__init__(parent)
+
+    def name(self):
+        return 'show'
 
     def help(self):
         print('show проект - показывает информацию о проекте')
@@ -54,6 +60,9 @@ class Show(Command):
 class Remove(Command):
     def __init__(self, parent):
         super().__init__(parent)
+
+    def name(self):
+        return 'rm'
 
     def help(self):
         print('remove проект - удаляет запись о проекте')
@@ -87,6 +96,9 @@ class Add(Command):
     def __init__(self, parent):
         super().__init__(parent)
 
+    def name(self):
+        return 'add'
+
     def help(self):
         print('add проект - создаёт запись о новом проекте')
         print('rs project add [проект]')
@@ -119,7 +131,7 @@ class Project(Command):
         super().__init__(parent)
         self.commands = {'Add': Add, 'list': List, 'rm': Remove, 'show': Show}
 
-    def pathWithoutArgs(self):
+    def name(self):
         return 'project'
 
     def help(self):

@@ -14,6 +14,9 @@ class Rs(Command):
         realPath = dirname(realpath(__file__))
         self.commands = utils.importCommands(realPath)
 
+    def name(self):
+        return 'rs'
+
     def help(self):
         print('rs написать что-нибудь')
 

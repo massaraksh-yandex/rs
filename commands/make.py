@@ -38,6 +38,9 @@ class Make(Command):
         self.makeTargets = []
         self.projects = []
 
+    def name(self):
+        return 'make'
+
     def pathWithoutArgs(self):
         return 'rs make'
 

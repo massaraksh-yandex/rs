@@ -10,6 +10,9 @@ class Send(Command):
     def __init__(self, parent):
         super().__init__(parent)
 
+    def name(self):
+        return 'send'
+
     def help(self):
         print('rs send - отправляет файлы на удалённый сервер')
         print('rs send название_проекта')

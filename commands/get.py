@@ -11,8 +11,8 @@ class Get(Command):
     def __init__(self, parent):
         super().__init__(parent)
 
-    def pathWithoutArgs(self):
-        return 'rs get'
+    def name(self):
+        return 'get'
 
     def help(self):
         print('rs get - получает файлы с удалённого сервера')

@@ -9,6 +9,9 @@ class List(Command):
     def __init__(self, parent):
         super().__init__(parent)
 
+    def name(self):
+        return 'list'
+
     def help(self):
         print('list - показывает список рабочих окружений')
         print('rs workspace list [--help]')
@@ -29,6 +32,9 @@ class List(Command):
 class Add(Command):
     def __init__(self, parent):
         super().__init__(parent)
+
+    def name(self):
+        return 'add'
 
     def help(self):
         print('add [рабочее окружение] - создаёт запись о новом рабочем окружении')
@@ -62,6 +68,9 @@ class Workspace(Command):
     def __init__(self, parent):
         super().__init__(parent)
         self.commands = {'add': Add, 'list': List}
+
+    def name(self):
+        return 'workspace'
 
     def help(self):
         print('rs workspace add')
