@@ -1,11 +1,10 @@
-from src.repo import getProjects, serializeProject, printProject
-from src import repo
+from src.project import getProjects
 from platform.exception import WrongOptions, WrongTargets
 from platform.command import Command
 from platform.delimer import checkNoDelimers
-from src.utils import readLineWithPrompt
+from src.utils import readLineWithPrompt, getProjectPathByName
 from os import remove
-from src.settings import getProjectPathByName
+from src import project
 
 
 class List(Command):
@@ -43,9 +42,7 @@ class Show(Command):
             raise WrongTargets('Проект {0} не существует'.format(p.targets[0]))
 
     def process(self, p):
-        a = getProjects().get(p.targets[0])
-        #print (str(a.))
-        printProject(a)
+        getProjects().get(p.targets[0]).print()
 
 
 class Remove(Command):
@@ -77,11 +74,11 @@ class Remove(Command):
         print('Проект {0} удалён'.format(name))
 
 
-class Create(Command):
+class Add(Command):
     def help(self):
-        print('create проект - создаёт запись о новом проекте')
-        print('rs project create [проект]')
-        print('rs project create --help')
+        print('add проект - создаёт запись о новом проекте')
+        print('rs project add [проект]')
+        print('rs project add --help')
         print('[проект] - название проекта')
 
     def check(self, p):
@@ -94,27 +91,26 @@ class Create(Command):
             raise WrongTargets('Проект {0} уже существует'.format(p.targets[0]))
 
     def process(self, p):
-        project = repo.Project(p.targets[0])
+        prj = project.Project.input(p.targets[0])
 
-        project.path = readLineWithPrompt('Путь', '/home/massaraksh/ws')
-        project.host = readLineWithPrompt('Хост', 'wmidevaddr')
-        project.project_type = readLineWithPrompt('Тип проекта', 'qtcreator_import')
-        answer = readLineWithPrompt('Всё верно (yes/no)', 'no')
-
-        if answer != 'yes':
+        if prj is not None:
+            prj.serialize()
+            print('Проект {0} добавлен'.format(prj.name))
+        else:
             print('Отмена...')
-            return
-
-        serializeProject(project)
-        print('Проект {0} добавлен'.format(project.name))
 
 
 class Project(Command):
-    commands = {'create': Create, 'list': List, 'rm': Remove, 'show': Show}
+    commands = {'Add': Add, 'list': List, 'rm': Remove, 'show': Show}
+
+    def pathWithoutArgs(self):
+        return 'project'
 
     def help(self):
-        print('rs project create')
         print('rs project list')
+        print('rs project add')
+        print('rs project show')
+        print('rs project rm')
 
     def check(self, p):
         if len(p.targets) == 0:

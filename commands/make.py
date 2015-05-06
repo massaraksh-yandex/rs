@@ -4,8 +4,7 @@ from platform.exception import WrongTargets, WrongDelimers
 from platform.params import Params
 from platform.command import Command
 from platform.delimer import SingleDelimer
-from src.settings import Settings
-from src.repo import getProjects
+from src.project import getProjects
 from commands.get import Get
 
 
@@ -37,6 +36,9 @@ class Make(Command):
     def __init__(self):
         self.makeTargets = []
         self.projects = []
+
+    def pathWithoutArgs(self):
+        return 'rs make'
 
     def help(self):
         print('rs make - вызывает Makefile на удалённой машине')
@@ -74,8 +76,7 @@ class Make(Command):
 
     def syncIncludes(self, project):
         print('Синхронизирую заголовки...')
-        get = Get()
-        get.syncPath(Settings.EXCLUDE_FROM, '~/ws/include', '~/ws/include', 'wmidevaddr')
+        Get().execute([project, '--workspace', '--includes-only'])
 
     def process(self, p):
         if type(p.delimer) is SingleDelimer:

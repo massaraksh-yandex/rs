@@ -1,12 +1,16 @@
-from src.sync import SyncData, callSync
 from platform.exception import WrongTargets, WrongOptions
 from platform.command import Command
 from platform.delimer import checkNoDelimers
 from src.settings import Settings
-from os.path import expanduser
+from src.project import getProjects
+from src.workspace import getWorkspaces
+from src.sync import SyncData, callSync
 
 
 class Get(Command):
+    def pathWithoutArgs(self):
+        return 'rs get'
+
     def help(self):
         print('rs get - получает файлы с удалённого сервера')
         print('rs get название_проекта')
@@ -18,17 +22,34 @@ class Get(Command):
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
 
         if len(p.options) != 0:
-            raise WrongOptions('Странные аргументы: ' + str(p.options))
+            for opt in p.options:
+                if opt not in ['workspace', 'includes-only']:
+                    raise WrongOptions('Странные аргументы: ' + str(p.options))
 
-    def syncPath(self, excludeFrom, path, remotePath, host):
-        callSync([Settings.RS_ARGS, '--cvs-exclude', excludeFrom, host + ':' + remotePath + '/', expanduser(path)])
+    def syncPath(self, sd: SyncData):
+        remote = '{0}:{1}/'.format(sd.host, sd.remotePath)
+        callSync([Settings.RS_ARGS, '--cvs-exclude', sd.excludeFile, remote, sd.path])
+
+    def syncProjects(self, p):
+        for arg in p.targets:
+            sd = getProjects()[arg].toSyncData()
+            sd.showSyncInfo()
+            self.syncPath(sd)
+
+    def syncWorkspaces(self, p):
+        for arg in p.targets:
+            ws = getWorkspaces()[arg]
+            sd = ws.toSyncData(ws.include if 'includes-only' in p.options else ws.src)
+
+            sd.showSyncInfo()
+            self.syncPath(sd)
 
     def process(self, p):
         try:
-            for arg in p.targets:
-                sd = SyncData(arg)
-                sd.show()
-                self.syncPath(sd.exclude_from, sd.path, sd.path, sd.host)
+            if 'workspace' in p.options:
+                self.syncWorkspaces(p)
+            else:
+                self.syncProjects(p)
         except KeyError as arg:
             self.error('Нет такого проекта: ' + str(arg))
 
