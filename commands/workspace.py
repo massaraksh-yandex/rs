@@ -6,6 +6,9 @@ from src import workspace
 
 
 class List(Command):
+    def __init__(self, parent):
+        super().__init__(parent)
+
     def help(self):
         print('list - показывает список рабочих окружений')
         print('rs workspace list [--help]')
@@ -24,6 +27,9 @@ class List(Command):
 
 
 class Add(Command):
+    def __init__(self, parent):
+        super().__init__(parent)
+
     def help(self):
         print('add [рабочее окружение] - создаёт запись о новом рабочем окружении')
         print('rs workspace add [рабочее окружение]')
@@ -51,7 +57,11 @@ class Add(Command):
 
 
 class Workspace(Command):
-    commands = {'add': Add, 'list': List}
+    commands = None
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.commands = {'add': Add, 'list': List}
 
     def help(self):
         print('rs workspace add')
@@ -64,7 +74,7 @@ class Workspace(Command):
 
     def process(self, p):
         cmd = p.targets[0]
-        v = self.commands[cmd]()
+        v = self.commands[cmd](self)
         v.execute(p.argv[1:])
 
 

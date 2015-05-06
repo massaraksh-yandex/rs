@@ -33,7 +33,8 @@ class Make(Command):
     makeTargets = None
     projects = None
 
-    def __init__(self):
+    def __init__(self, parent):
+        super().__init__(parent)
         self.makeTargets = []
         self.projects = []
 

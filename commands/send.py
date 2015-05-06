@@ -7,6 +7,9 @@ from src.sync import SyncData, callSync
 
 
 class Send(Command):
+    def __init__(self, parent):
+        super().__init__(parent)
+
     def help(self):
         print('rs send - отправляет файлы на удалённый сервер')
         print('rs send название_проекта')

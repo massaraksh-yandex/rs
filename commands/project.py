@@ -8,6 +8,9 @@ from src import project
 
 
 class List(Command):
+    def __init__(self, parent):
+        super().__init__(parent)
+
     def help(self):
         print('list - показывает список проектов')
         print('rs project list [--help]')
@@ -26,6 +29,9 @@ class List(Command):
 
 
 class Show(Command):
+    def __init__(self, parent):
+        super().__init__(parent)
+
     def help(self):
         print('show проект - показывает информацию о проекте')
         print('rs project show [проект]')
@@ -46,6 +52,9 @@ class Show(Command):
 
 
 class Remove(Command):
+    def __init__(self, parent):
+        super().__init__(parent)
+
     def help(self):
         print('remove проект - удаляет запись о проекте')
         print('rs project remove [проект]')
@@ -75,6 +84,9 @@ class Remove(Command):
 
 
 class Add(Command):
+    def __init__(self, parent):
+        super().__init__(parent)
+
     def help(self):
         print('add проект - создаёт запись о новом проекте')
         print('rs project add [проект]')
@@ -101,7 +113,11 @@ class Add(Command):
 
 
 class Project(Command):
-    commands = {'Add': Add, 'list': List, 'rm': Remove, 'show': Show}
+    commands = None
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.commands = {'Add': Add, 'list': List, 'rm': Remove, 'show': Show}
 
     def pathWithoutArgs(self):
         return 'project'
@@ -119,7 +135,7 @@ class Project(Command):
 
     def process(self, p):
         cmd = p.targets[0]
-        v = self.commands[cmd]()
+        v = self.commands[cmd](self)
         v.execute(p.argv[1:])
 
 

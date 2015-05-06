@@ -8,6 +8,9 @@ from src.sync import SyncData, callSync
 
 
 class Get(Command):
+    def __init__(self, parent):
+        super().__init__(parent)
+
     def pathWithoutArgs(self):
         return 'rs get'
 

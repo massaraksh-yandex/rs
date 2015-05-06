@@ -9,7 +9,8 @@ from platform import utils
 class Rs(Command):
     commands = None
 
-    def __init__(self):
+    def __init__(self, parent):
+        super().__init__(parent)
         realPath = dirname(realpath(__file__))
         self.commands = utils.importCommands(realPath)
 
@@ -22,9 +23,9 @@ class Rs(Command):
 
     def process(self, p):
         cmd = p.argv[0]
-        self.commands[cmd]().execute(p.argv[1:])
+        self.commands[cmd](self).execute(p.argv[1:])
 
 
 if __name__ == "__main__":
     utils.setupCodecs()
-    Rs().execute(sys.argv[1:])
+    Rs(None).execute(sys.argv[1:])
