@@ -1,6 +1,7 @@
 from platform.exception import WrongTargets, WrongOptions
 from platform.command import Command
 from platform.delimer import checkNoDelimers
+from platform.utils import makeCommandDict
 from src.settings import Settings
 from src.project import getProjects
 from src.workspace import getWorkspaces
@@ -57,5 +58,4 @@ class Get(Command):
             self.error('Нет такого проекта: ' + str(arg))
 
 
-module_commands = {'get': Get}
-
+module_commands = makeCommandDict([Get])

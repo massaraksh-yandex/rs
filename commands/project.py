@@ -1,3 +1,4 @@
+from platform.utils import makeCommandDict
 from src.project import getProjects
 from platform.exception import WrongOptions, WrongTargets
 from platform.command import Command
@@ -129,7 +130,7 @@ class Project(Command):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.commands = {'Add': Add, 'list': List, 'rm': Remove, 'show': Show}
+        self.commands = makeCommandDict([Add, List, Remove, Show])
 
     def name(self):
         return 'project'
@@ -151,4 +152,4 @@ class Project(Command):
         v.execute(p.argv[1:])
 
 
-module_commands = {'project': Project}
+module_commands = makeCommandDict([Project])

@@ -49,9 +49,11 @@ class Workspace:
         print('Исходный код: ' + self.src)
 
 
-def getWorkspaceByHostAndPath(host, path) -> Workspace:
-    f = lambda x: x.host == host and x.root == path
-    return filter(f, list(getWorkspaces()))
+def getWorkspaceByHostAndPath(host, root) -> Workspace:
+    for key, ws in getWorkspaces():
+        if ws.host == host and ws.root == root:
+            return ws
+
 
 def getWorkspaces(path = Settings.WORKSPACES_DIR):
     ret = {}

@@ -4,6 +4,7 @@ from platform.exception import WrongTargets, WrongDelimers
 from platform.params import Params
 from platform.command import Command
 from platform.delimer import SingleDelimer
+from platform.utils import makeCommandDict
 from src.project import getProjects
 from commands.get import Get
 
@@ -93,5 +94,5 @@ class Make(Command):
                 make(self.makeTargets, proj)
                 self.syncIncludes(proj)
 
-module_commands = {'make': Make}
+module_commands = makeCommandDict([Make])
 

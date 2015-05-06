@@ -1,6 +1,7 @@
 from platform.exception import WrongOptions, WrongTargets
 from platform.command import Command
 from platform.delimer import checkNoDelimers
+from platform.utils import makeCommandDict
 from src.workspace import getWorkspaces
 from src import workspace
 
@@ -67,7 +68,7 @@ class Workspace(Command):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.commands = {'add': Add, 'list': List}
+        self.commands = makeCommandDict([Add, List])
 
     def name(self):
         return 'workspace'
@@ -87,4 +88,4 @@ class Workspace(Command):
         v.execute(p.argv[1:])
 
 
-module_commands = {'workspace': Workspace}
+module_commands = makeCommandDict([Workspace])

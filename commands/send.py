@@ -1,6 +1,7 @@
 from platform.exception import WrongOptions, WrongTargets
 from platform.delimer import checkNoDelimers
 from platform.command import Command
+from platform.utils import makeCommandDict
 from src.settings import Settings
 from src.project import getProjects
 from src.sync import SyncData, callSync
@@ -41,4 +42,4 @@ class Send(Command):
             self.error('Нет такого проекта: ' + arg)
 
 
-module_commands = {'send': Send}
+module_commands = makeCommandDict([Send])
