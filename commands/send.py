@@ -14,12 +14,12 @@ class Send(Command):
     def name(self):
         return 'send'
 
-    def help(self):
+    def __help(self):
         print('rs send - отправляет файлы на удалённый сервер')
         print('rs send название_проекта')
         print('rs send --help')
 
-    def check(self, p):
+    def __check(self, p):
         checkNoDelimers(p)
         if len(p.targets) == 0:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
@@ -32,7 +32,7 @@ class Send(Command):
         callSync([Settings.RS_ARGS, '--cvs-exclude', sd.excludeFile, sd.path+'/', remote])
 
 
-    def process(self, p):
+    def __process(self, p):
         try:
             for arg in p.targets:
                 sd = getProjects()[arg].toSyncData()

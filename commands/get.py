@@ -15,12 +15,12 @@ class Get(Command):
     def name(self):
         return 'get'
 
-    def help(self):
+    def __help(self):
         print('rs get - получает файлы с удалённого сервера')
         print('rs get название_проекта')
         print('rs get --help')
 
-    def check(self, p):
+    def __check(self, p):
         checkNoDelimers(p)
         if len(p.targets) == 0:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
@@ -48,7 +48,7 @@ class Get(Command):
             sd.showSyncInfo()
             self.syncPath(sd)
 
-    def process(self, p):
+    def __process(self, p):
         try:
             if 'workspace' in p.options:
                 self.syncWorkspaces(p)

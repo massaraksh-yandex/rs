@@ -45,13 +45,13 @@ class Make(Command):
     def pathWithoutArgs(self):
         return 'rs make'
 
-    def help(self):
+    def __help(self):
         print('rs make - вызывает Makefile на удалённой машине')
         print('rs make цели -- названия_проектов')
         print('rs make цели - название_проекта папка_с_Makefile')
         print('rs make --help')
 
-    def check(self, p: Params):
+    def __check(self, p: Params):
         if len(p.delimer) != 1:
             raise WrongDelimers('Неверное число разделителей: ' + str(len(p.delimer)))
 
@@ -83,7 +83,7 @@ class Make(Command):
         print('Синхронизирую заголовки...')
         Get().execute([project, '--workspace', '--includes-only'])
 
-    def process(self, p):
+    def __process(self, p):
         if type(p.delimer) is SingleDelimer:
             print('Проект ' + self.targets[0])
             make(self.makeTargets, self.projects[0], self.projects[1])
