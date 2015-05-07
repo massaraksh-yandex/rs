@@ -1,25 +1,25 @@
 from platform.utils import makeCommandDict
 from src.project import getProjects
 from platform.exception import WrongOptions, WrongTargets
-from platform.command import Command
+from platform.command import Command, Endpoint
 from platform.delimer import checkNoDelimers
 from src.utils import readLineWithPrompt, getProjectPathByName
 from os import remove
 from src import project
 
 
-class List(Command):
+class List(Endpoint):
     def __init__(self, parent):
         super().__init__(parent)
 
     def name(self):
         return 'list'
 
-    def __help(self):
-        print('list - показывает список проектов')
-        print('rs project list [--help]')
+    def _help(self):
+        return ['{path} - показывает список проектов',
+                '{path} --help']
 
-    def __check(self, p):
+    def _check(self, p):
         checkNoDelimers(p)
         if len(p.targets) != 0:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
@@ -27,25 +27,25 @@ class List(Command):
         if len(p.options) != 0:
             raise WrongOptions('Странные аргументы: ' + str(p.options))
 
-    def __process(self, p):
+    def _process(self, p):
         for k, v in getProjects().items():
             print("project: " + k)
 
 
-class Show(Command):
+class Show(Endpoint):
     def __init__(self, parent):
         super().__init__(parent)
 
     def name(self):
         return 'show'
 
-    def __help(self):
-        print('show проект - показывает информацию о проекте')
-        print('rs project show [проект]')
-        print('rs project show --help')
-        print('[проект] - название проекта')
+    def _help(self):
+        return ['{path} проект - показывает информацию о проекте',
+                '{path} [проект]',
+                '{path} --help',
+                '[проект] - название проекта']
 
-    def __check(self, p):
+    def _check(self, p):
         checkNoDelimers(p)
         if len(p.targets) != 1:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
@@ -54,24 +54,24 @@ class Show(Command):
         if p.targets[0] not in getProjects():
             raise WrongTargets('Проект {0} не существует'.format(p.targets[0]))
 
-    def __process(self, p):
+    def _process(self, p):
         getProjects().get(p.targets[0]).print()
 
 
-class Remove(Command):
+class Remove(Endpoint):
     def __init__(self, parent):
         super().__init__(parent)
 
     def name(self):
         return 'rm'
 
-    def __help(self):
-        print('remove проект - удаляет запись о проекте')
-        print('rs project remove [проект]')
-        print('rs project remove --help')
-        print('[проект] - название проекта')
+    def _help(self):
+        return ['{path} проект - удаляет запись о проекте',
+                '{path} [проект]',
+                '{path} --help',
+                '[проект] - название проекта']
 
-    def __check(self, p):
+    def _check(self, p):
         checkNoDelimers(p)
         if len(p.targets) != 1:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
@@ -80,7 +80,7 @@ class Remove(Command):
         if p.targets[0] not in getProjects():
             raise WrongTargets('Проект {0} не существует'.format(p.targets[0]))
 
-    def __process(self, p):
+    def _process(self, p):
         name = p.targets[0]
         answer = readLineWithPrompt('Удалить проект {0}? (yes/no)'.format(name), 'no')
 
@@ -93,20 +93,20 @@ class Remove(Command):
         print('Проект {0} удалён'.format(name))
 
 
-class Add(Command):
+class Add(Endpoint):
     def __init__(self, parent):
         super().__init__(parent)
 
     def name(self):
         return 'add'
 
-    def __help(self):
-        print('add проект - создаёт запись о новом проекте')
-        print('rs project add [проект]')
-        print('rs project add --help')
-        print('[проект] - название проекта')
+    def _help(self):
+        return ['{path} проект - создаёт запись о новом проекте',
+                '{path} [проект]',
+                '{path} --help',
+                '[проект] - название проекта']
 
-    def __check(self, p):
+    def _check(self, p):
         checkNoDelimers(p)
         if len(p.targets) != 1:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
@@ -115,7 +115,7 @@ class Add(Command):
         if p.targets[0] in getProjects():
             raise WrongTargets('Проект {0} уже существует'.format(p.targets[0]))
 
-    def __process(self, p):
+    def _process(self, p):
         prj = project.Project.input(p.targets[0])
 
         if prj is not None:
@@ -135,18 +135,15 @@ class Project(Command):
     def name(self):
         return 'project'
 
-    def __help(self):
-        print('rs project list')
-        print('rs project add')
-        print('rs project show')
-        print('rs project rm')
+    def _help(self):
+        return [pr(self).path() for k, pr in self.commands.items()]
 
-    def __check(self, p):
+    def _check(self, p):
         if len(p.targets) == 0:
             raise WrongTargets('Отсутствуют цели')
 
 
-    def __process(self, p):
+    def _process(self, p):
         cmd = p.targets[0]
         v = self.commands[cmd](self)
         v.execute(p.argv[1:])

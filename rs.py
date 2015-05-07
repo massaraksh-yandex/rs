@@ -17,14 +17,14 @@ class Rs(Command):
     def name(self):
         return 'rs'
 
-    def __help(self):
-        print('rs написать что-нибудь')
+    def _help(self):
+        return [pr(self).path() for k, pr in self.commands.items()]
 
-    def __check(self, p):
+    def _check(self, p):
         if p.targets[0] not in self.commands:
             raise WrongTargets('Нет такой команды: {0}'.format(p.targets[0]))
 
-    def __process(self, p):
+    def _process(self, p):
         cmd = p.argv[0]
         self.commands[cmd](self).execute(p.argv[1:])
 

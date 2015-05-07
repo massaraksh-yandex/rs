@@ -19,5 +19,6 @@ class SyncData:
         print('Options: {0} {1}'.format(Settings.RS_ARGS, self.excludeFile))
 
 
-def callSync(lst):
-    subprocess.call(['rsync'] + lst)
+def callSync(exclude, src, dest):
+    args = ['rsync', Settings.RS_ARGS, '--cvs-exclude', exclude, src, dest]
+    subprocess.call(args)

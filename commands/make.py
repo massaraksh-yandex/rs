@@ -2,11 +2,12 @@ import subprocess
 import sys
 from platform.exception import WrongTargets, WrongDelimers
 from platform.params import Params
-from platform.command import Command
+from platform.command import Endpoint
 from platform.delimer import SingleDelimer
 from platform.utils import makeCommandDict
 from src.project import getProjects
 from commands.get import Get
+from src.workspace import getWorkspaceByHostAndPath
 
 
 def make(make_targets, project, makefile_path = ''):
@@ -30,7 +31,7 @@ def make(make_targets, project, makefile_path = ''):
         line = line.replace('/home/massaraksh/', '/Users/massaraksh/')
         sys.stderr.write(line)
 
-class Make(Command):
+class Make(Endpoint):
     makeTargets = None
     projects = None
 
@@ -45,17 +46,18 @@ class Make(Command):
     def pathWithoutArgs(self):
         return 'rs make'
 
-    def __help(self):
-        print('rs make - вызывает Makefile на удалённой машине')
-        print('rs make цели -- названия_проектов')
-        print('rs make цели - название_проекта папка_с_Makefile')
-        print('rs make --help')
+    def _help(self):
+        return ['{path} - вызывает Makefile на удалённой машине',
+                '{path} цели -- названия_проектов',
+                '{path} цели - название_проекта папка_с_Makefile',
+                '{path} --help']
 
-    def __check(self, p: Params):
+    def _check(self, p: Params):
         if len(p.delimer) != 1:
             raise WrongDelimers('Неверное число разделителей: ' + str(len(p.delimer)))
 
-        ind = p.delimer[0].index
+        delimer = p.delimer[0]
+        ind = delimer.index
 
         if ind == 0:
             raise WrongTargets('Отсутствуют цели Makefile: ' + str(p.argv))
@@ -66,11 +68,12 @@ class Make(Command):
         self.projects = p.targets[ind:]
 
         availableProjects = getProjects()
-        if type(p.delimer) is SingleDelimer:
+        if isinstance(delimer, SingleDelimer):
             if len(self.projects) != 2:
                 raise WrongTargets('Слишком много параметров для сборки'
                                    ' проекта с указанием пути до Makefile: ' + str(self.projects))
             proj = self.projects[0]
+
             if proj not in availableProjects:
                 raise WrongTargets('Нет такого проекта: ' + proj)
         else:
@@ -81,11 +84,14 @@ class Make(Command):
 
     def syncIncludes(self, project):
         print('Синхронизирую заголовки...')
-        Get().execute([project, '--workspace', '--includes-only'])
+        pr = getProjects()[project]
+        ws = getWorkspaceByHostAndPath(pr.host, pr.path)
+        Get(self).execute([ws.name, '--workspace', '--includes-only'])
 
-    def __process(self, p):
-        if type(p.delimer) is SingleDelimer:
-            print('Проект ' + self.targets[0])
+    def _process(self, p):
+        delimer = p.delimer[0]
+        if isinstance(delimer, SingleDelimer):
+            print('Проект ' + self.makeTargets[0])
             make(self.makeTargets, self.projects[0], self.projects[1])
             self.syncIncludes(self.projects[0])
         else:

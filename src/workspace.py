@@ -50,8 +50,8 @@ class Workspace:
 
 
 def getWorkspaceByHostAndPath(host, root) -> Workspace:
-    for key, ws in getWorkspaces():
-        if ws.host == host and ws.root == root:
+    for key, ws in getWorkspaces().items():
+        if ws.host == host and ws.src == root:
             return ws
 
 
