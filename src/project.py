@@ -8,8 +8,8 @@ import json
 class Project:
     name = ''
     path = ''
-    remote_path = ''
     host = ''
+    workspace = ''
     project_type = ''
 
     def __init__(self, name = '', map = {}):

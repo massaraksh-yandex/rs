@@ -49,8 +49,7 @@ class Make(Endpoint):
     def _help(self):
         return ['{path} - вызывает Makefile на удалённой машине',
                 '{path} цели -- названия_проектов',
-                '{path} цели - название_проекта папка_с_Makefile',
-                '{path} --help']
+                '{path} цели - название_проекта папка_с_Makefile']
 
     def _check(self, p: Params):
         if len(p.delimer) != 1:

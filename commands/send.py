@@ -15,8 +15,7 @@ class Send(Endpoint):
 
     def _help(self):
         return ['{path} - отправляет файлы на удалённый сервер',
-                '{path} название_проекта',
-                '{path} --help']
+                '{path} название_проекта']
 
     def _check(self, p):
         checkNoDelimers(p)

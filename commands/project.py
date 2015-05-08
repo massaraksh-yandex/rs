@@ -17,7 +17,7 @@ class List(Endpoint):
 
     def _help(self):
         return ['{path} - показывает список проектов',
-                '{path} --help']
+                '{path}']
 
     def _check(self, p):
         checkNoDelimers(p)
@@ -40,10 +40,8 @@ class Show(Endpoint):
         return 'show'
 
     def _help(self):
-        return ['{path} проект - показывает информацию о проекте',
-                '{path} [проект]',
-                '{path} --help',
-                '[проект] - название проекта']
+        return ['{path} - показывает информацию о проекте',
+                '{path} название_проекта']
 
     def _check(self, p):
         checkNoDelimers(p)
@@ -66,10 +64,8 @@ class Remove(Endpoint):
         return 'rm'
 
     def _help(self):
-        return ['{path} проект - удаляет запись о проекте',
-                '{path} [проект]',
-                '{path} --help',
-                '[проект] - название проекта']
+        return ['{path} - удаляет запись о проекте',
+                '{path} название_проекта']
 
     def _check(self, p):
         checkNoDelimers(p)
@@ -101,10 +97,8 @@ class Add(Endpoint):
         return 'add'
 
     def _help(self):
-        return ['{path} проект - создаёт запись о новом проекте',
-                '{path} [проект]',
-                '{path} --help',
-                '[проект] - название проекта']
+        return ['{path} - создаёт запись о новом проекте',
+                '{path} название_проекта']
 
     def _check(self, p):
         checkNoDelimers(p)

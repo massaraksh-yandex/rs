@@ -15,7 +15,7 @@ class List(Endpoint):
 
     def _help(self):
         return ['{path} - показывает список рабочих окружений',
-                '{path} [--help]']
+                '{path}']
 
     def _check(self, p):
         checkNoDelimers(p)
@@ -38,10 +38,8 @@ class Add(Endpoint):
         return 'add'
 
     def _help(self):
-        return ['{path} [рабочее окружение] - создаёт запись о новом рабочем окружении',
-                '{path} [рабочее окружение]',
-                '{path} --help',
-                '[рабочее окружение] - название проекта']
+        return ['{path} - создаёт запись о новом рабочем окружении',
+                '{path} рабочее_окружение']
 
     def _check(self, p):
         checkNoDelimers(p)
