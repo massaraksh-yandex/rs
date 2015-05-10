@@ -1,5 +1,6 @@
 from os.path import join, isfile
 from sys import stdout, stdin
+from src.config import Config
 
 from src.settings import Settings
 
@@ -19,11 +20,12 @@ def getProjectPathByName(name):
 def getWorkspacePathByName(name):
     return join(Settings.WORKSPACES_DIR, name + '.json')
 
-def getExcludeFile(path):
-    if not isfile(join(path, Settings.EXCLUDE_FILE)):
-        file = join(Settings.CONFIG_DIR, Settings.EXCLUDE_FILE)
+def getExcludeFileArg(path):
+    cfg = Config()
+    if not isfile(join(path, cfg.excludeFileName)):
+        file = join(Settings.CONFIG_DIR, cfg.excludeFileName)
     else:
-        file = join(path, Settings.EXCLUDE_FILE)
+        file = join(path, cfg.excludeFileName)
     return '--exclude-from={0}'.format(file)
 
 

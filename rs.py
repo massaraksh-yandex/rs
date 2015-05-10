@@ -21,6 +21,8 @@ class Rs(Command):
         return [pr(self).path() for k, pr in self.commands.items()]
 
     def _check(self, p):
+        if len(p.targets) == 0:
+            raise WrongTargets('Отсутствуют цели')
         if p.targets[0] not in self.commands:
             raise WrongTargets('Нет такой команды: {0}'.format(p.targets[0]))
 

@@ -1,4 +1,5 @@
 import subprocess
+from src.config import Config
 from src.settings import Settings
 
 class SyncData:
@@ -14,11 +15,13 @@ class SyncData:
         self.excludeFile = exclude
 
     def showSyncInfo(self):
+        cfg = Config()
         print('Path: {0}'.format(self.path))
         print('Host: {0}'.format(self.host))
-        print('Options: {0} {1}'.format(Settings.SYNC_ARGS, self.excludeFile))
+        print('Options: {0} {1}'.format(cfg.argSync, self.excludeFile))
 
 
 def callSync(exclude, src, dest):
-    args = ['rsync', Settings.SYNC_ARGS, '--cvs-exclude', exclude, src, dest]
+    cfg = Config()
+    args = ['rsync', cfg.argSync, '--cvs-exclude', exclude, src, dest]
     subprocess.call(args)

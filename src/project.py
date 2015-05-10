@@ -1,5 +1,5 @@
 from src.settings import Settings
-from src.utils import getProjectPathByName, getExcludeFile, readLineWithPrompt
+from src.utils import getProjectPathByName, getExcludeFileArg, readLineWithPrompt
 from os.path import basename, join, splitext
 from src.sync import SyncData
 from glob import glob
@@ -36,7 +36,7 @@ class Project:
     def toSyncData(self) -> SyncData:
         path = join(self.path, self.name)
         ws = getWorkspaces()[self.workspace]
-        return SyncData(path, ws.host, join(ws.src, self.name), getExcludeFile(path))
+        return SyncData(path, ws.host, join(ws.src, self.name), getExcludeFileArg(path))
 
     def serialize(self):
         with open(getProjectPathByName(self.name), 'w') as f:

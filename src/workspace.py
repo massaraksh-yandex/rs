@@ -1,7 +1,7 @@
 from src.settings import Settings
 from glob import glob
 from os.path import join, basename, splitext
-from src.utils import getWorkspacePathByName, getExcludeFile, readLineWithPrompt
+from src.utils import getWorkspacePathByName, getExcludeFileArg, readLineWithPrompt
 from src.sync import SyncData
 import json
 
@@ -38,7 +38,7 @@ class Workspace:
 
     def toSyncData(self, p = None) -> SyncData:
         path = self.src if p is None else p
-        return SyncData(path, self.host, path, getExcludeFile(path))
+        return SyncData(path, self.host, path, getExcludeFileArg(path))
 
     def serialize(self):
         with open(getWorkspacePathByName(self.name), 'w') as f:
