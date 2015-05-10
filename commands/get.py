@@ -1,6 +1,7 @@
 from platform.exception import WrongTargets, WrongOptions
 from platform.command import Endpoint
 from platform.delimer import checkNoDelimers
+from platform.params import Params
 from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.workspace import getWorkspaces
@@ -18,7 +19,7 @@ class Get(Endpoint):
         return ['{path} - получает файлы с удалённого сервера',
                 '{path} название_проекта']
 
-    def _check(self, p):
+    def _check(self, p: Params):
         checkNoDelimers(p)
         if len(p.targets) == 0:
             raise WrongTargets('Неверное число целей: ' + str(p.targets))
@@ -32,13 +33,13 @@ class Get(Endpoint):
         remote = '{0}:{1}/'.format(sd.host, sd.remotePath)
         callSync(sd.excludeFile, remote, sd.path)
 
-    def syncProjects(self, p):
+    def syncProjects(self, p: Params):
         for arg in p.targets:
             sd = getProjects()[arg].toSyncData()
             sd.showSyncInfo()
             self.syncPath(sd)
 
-    def syncWorkspaces(self, p):
+    def syncWorkspaces(self, p: Params):
         for arg in p.targets:
             ws = getWorkspaces()[arg]
             sd = ws.toSyncData(ws.include if 'includes-only' in p.options else ws.src)
@@ -46,7 +47,7 @@ class Get(Endpoint):
             sd.showSyncInfo()
             self.syncPath(sd)
 
-    def _process(self, p):
+    def _process(self, p: Params):
         try:
             if 'workspace' in p.options:
                 self.syncWorkspaces(p)
