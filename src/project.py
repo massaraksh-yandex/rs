@@ -3,47 +3,50 @@ from src.utils import getProjectPathByName, getExcludeFile, readLineWithPrompt
 from os.path import basename, join, splitext
 from src.sync import SyncData
 from glob import glob
+from src.workspace import getWorkspaces
 import json
 
 class Project:
     name = ''
     path = ''
-    host = ''
     workspace = ''
     project_type = ''
 
-    def __init__(self, name = '', map = {}):
+    def __init__(self, name, map):
         self.name = name
-        for key, value in map.items():
-            setattr(self, key, value)
+        self.path = map['path']
+        self.workspace = map['workspace']
+        self.project_type = map['project_type']
 
     @staticmethod
     def input(name):
-        project = Project(name)
+        map = {}
+        default_workspace = 'wmi_default'
+        ws = getWorkspaces()[default_workspace]
+        map['path'] = readLineWithPrompt('Родительская папка', ws.src)
+        map['project_type'] = readLineWithPrompt('Тип проекта', 'qtcreator_import')
+        map['workspace'] = readLineWithPrompt('Рабочее окружение', default_workspace)
 
-        project.path = readLineWithPrompt('Путь', '/home/massaraksh/ws')
-        project.host = readLineWithPrompt('Хост', 'wmidevaddr')
-        project.project_type = readLineWithPrompt('Тип проекта', 'qtcreator_import')
-        answer = readLineWithPrompt('Всё верно (yes/no)', 'no')
-
-        if answer != 'yes':
+        project = Project(name, map)
+        if readLineWithPrompt('Всё верно (yes/no)', 'no') != 'yes':
             return None
         else:
             return project
 
     def toSyncData(self) -> SyncData:
         path = join(self.path, self.name)
-        return SyncData(path, self.host, path, getExcludeFile(path))
+        ws = getWorkspaces()[self.workspace]
+        return SyncData(path, ws.host, join(ws.src, self.name), getExcludeFile(path))
 
     def serialize(self):
         with open(getProjectPathByName(self.name), 'w') as f:
-            json.dump(self.__dict__, f)
+            json.dump(self.__dict__, f, indent=4, sort_keys=True)
 
     def print(self):
         print('Название: ' + self.name)
-        print('Путь: ' + self.path)
-        print('Хост: ' + self.host)
+        print('Родительская папка: ' + self.path)
         print('Тип проекта: ' + self.project_type)
+        print('Рабочее окружение: ' + self.workspace)
 
 def getProjects(path = Settings.REMOTES_DIR):
     ret = {}

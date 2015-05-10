@@ -11,24 +11,27 @@ class Workspace:
     root = ''
     include = ''
     src = ''
+    etc = ''
 
-    def __init__(self, name = '', map = {}):
+    def __init__(self, name, map):
         self.name = name
-        for key, value in map.items():
-            setattr(self, key, value)
+        self.host = map['host']
+        self.root = map['root']
+        self.include = map['include']
+        self.src = map['src']
+        self.etc = map['etc']
 
     @staticmethod
     def input(name):
-        ws = Workspace(name)
+        map = {}
+        map['host'] = readLineWithPrompt('Хост', 'wmidevaddr')
+        map['root'] = readLineWithPrompt('Корень', '/home/massaraksh/ws')
+        map['include'] = readLineWithPrompt('Заголовочные файлы', join(map['root'], 'include'))
+        map['src'] = readLineWithPrompt('Исходный код', join(map['root'], 'src'))
+        map['etc'] = readLineWithPrompt('Конфигурационные файлы', join(map['root'], 'etc'))
 
-        ws.host = readLineWithPrompt('Хост', 'wmidevaddr')
-        ws.root = readLineWithPrompt('Корень', '/home/massaraksh/ws')
-        ws.include = readLineWithPrompt('Заголовочные файлы', '')
-        ws.src = readLineWithPrompt('Исходный код', '')
-
-        answer = readLineWithPrompt('Всё верно (yes/no)', 'no')
-
-        if answer != 'yes':
+        ws = Workspace(name, map)
+        if readLineWithPrompt('Всё верно (yes/no)', 'no') != 'yes':
             return None
         else:
             return ws
@@ -39,7 +42,7 @@ class Workspace:
 
     def serialize(self):
         with open(getWorkspacePathByName(self.name), 'w') as f:
-            json.dump(self.__dict__, f)
+            json.dump(self.__dict__, f, indent=4, sort_keys=True)
 
     def print(self):
         print('Название: ' + self.name)
@@ -47,11 +50,12 @@ class Workspace:
         print('Корень: ' + self.root)
         print('Заголовочные файлы: ' + self.include)
         print('Исходный код: ' + self.src)
+        print('Конфигурационные файлы: ' + self.etc)
 
 
-def getWorkspaceByHostAndPath(host, root) -> Workspace:
+def getWorkspaceByHostAndPath(host, path) -> Workspace:
     for key, ws in getWorkspaces().items():
-        if ws.host == host and ws.src == root:
+        if ws.host == host and ws.src == path:
             return ws
 
 

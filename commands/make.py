@@ -1,18 +1,19 @@
-import subprocess
-import sys
 from platform.exception import WrongTargets, WrongDelimers
-from platform.params import Params
-from platform.command import Endpoint
 from platform.delimer import SingleDelimer
 from platform.utils import makeCommandDict
+from platform.command import Endpoint
+from platform.params import Params
+from src.config import Config
+from src.workspace import Workspace, getWorkspaces
 from src.project import getProjects
 from commands.get import Get
-from src.workspace import getWorkspaceByHostAndPath
+import subprocess
+import sys
 
 
 def make(make_targets, project, makefile_path = ''):
-    def getRealWorkspacePath(proj):
-        sp = subprocess.Popen(['ssh', prj.host, 'cd /home/massaraksh/ws; readlink -m .'], stdout=subprocess.PIPE)
+    def getRealWorkspacePath(ws: Workspace):
+        sp = subprocess.Popen(['ssh', ws.host, 'cd {0}; readlink -m .'.format(ws.root)], stdout=subprocess.PIPE)
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
 
     prj = getProjects()[project]
@@ -23,12 +24,15 @@ def make(make_targets, project, makefile_path = ''):
 
     command = "{0}; {1}; {2}".format(cd, jobs, make)
 
-    path = getRealWorkspacePath(prj)
-    proc = subprocess.Popen(['ssh', prj.host, command], stdout=subprocess.PIPE)
+    ws = getWorkspaces()[prj.workspace]
+    path = getRealWorkspacePath(ws)
+    proc = subprocess.Popen(['ssh', ws.host, command], stdout=subprocess.PIPE)
+    cfg = Config()
     while proc.poll() is None:
         line = proc.stdout.readline().decode("utf-8")
-        line = line.replace(path, '/Users/massaraksh/ws')
-        line = line.replace('/home/massaraksh/', '/Users/massaraksh/')
+        line = line.replace(path, ws.root)
+        # line = line.replace(path, '/Users/massaraksh/ws')
+        line = line.replace('/home', cfg.homeFolderName)
         sys.stderr.write(line)
 
 class Make(Endpoint):
@@ -42,9 +46,6 @@ class Make(Endpoint):
 
     def name(self):
         return 'make'
-
-    def pathWithoutArgs(self):
-        return 'rs make'
 
     def _help(self):
         return ['{path} - вызывает Makefile на удалённой машине',
@@ -84,10 +85,9 @@ class Make(Endpoint):
     def syncIncludes(self, project):
         print('Синхронизирую заголовки...')
         pr = getProjects()[project]
-        ws = getWorkspaceByHostAndPath(pr.host, pr.path)
-        Get(self).execute([ws.name, '--workspace', '--includes-only'])
+        Get(self).execute([pr.workspace, '--workspace', '--includes-only'])
 
-    def _process(self, p):
+    def _process(self, p: Params):
         delimer = p.delimer[0]
         if isinstance(delimer, SingleDelimer):
             print('Проект ' + self.makeTargets[0])
@@ -100,4 +100,3 @@ class Make(Endpoint):
                 self.syncIncludes(proj)
 
 module_commands = makeCommandDict([Make])
-

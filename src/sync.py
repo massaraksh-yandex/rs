@@ -16,9 +16,9 @@ class SyncData:
     def showSyncInfo(self):
         print('Path: {0}'.format(self.path))
         print('Host: {0}'.format(self.host))
-        print('Options: {0} {1}'.format(Settings.RS_ARGS, self.excludeFile))
+        print('Options: {0} {1}'.format(Settings.SYNC_ARGS, self.excludeFile))
 
 
 def callSync(exclude, src, dest):
-    args = ['rsync', Settings.RS_ARGS, '--cvs-exclude', exclude, src, dest]
+    args = ['rsync', Settings.SYNC_ARGS, '--cvs-exclude', exclude, src, dest]
     subprocess.call(args)
