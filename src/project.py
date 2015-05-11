@@ -1,3 +1,4 @@
+from src.config import Config
 from src.settings import Settings
 from src.utils import getProjectPathByName, getExcludeFileArg, readLineWithPrompt
 from os.path import basename, join, splitext
@@ -21,11 +22,11 @@ class Project:
     @staticmethod
     def input(name):
         map = {}
-        default_workspace = 'wmi_default'
-        ws = getWorkspaces()[default_workspace]
+        dw = Config().defaultWorkspace
+        ws = getWorkspaces()[dw]
         map['path'] = readLineWithPrompt('Родительская папка', ws.src)
         map['project_type'] = readLineWithPrompt('Тип проекта', 'qtcreator_import')
-        map['workspace'] = readLineWithPrompt('Рабочее окружение', default_workspace)
+        map['workspace'] = readLineWithPrompt('Рабочее окружение', dw)
 
         project = Project(name, map)
         if readLineWithPrompt('Всё верно (yes/no)', 'no') != 'yes':

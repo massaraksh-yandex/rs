@@ -15,18 +15,22 @@ class Config(Endpoint):
 
     def _help(self):
         return ['{path} - настройки опций программы',
-                '{path} - показывает текущие опции',
+                '{path} --list - показывает текущие опции',
                 '{path} опция - печатает значение опции',
                 '{path} опция новое_значение - устанавливает новое значение для опции']
 
     def _check(self, p: Params):
         checkNoDelimers(p)
 
-        if len(p.targets) > 2:
-            raise WrongTargets('Неверное чило аргументов: ' + str(p.targets))
+        lopt = len(p.options)
+        ltar = len(p.targets)
 
-        if len(p.options) != 0:
-            raise WrongOptions('Странные аргументы: ' + str(p.options))
+        if lopt == 0 and ltar > 2:
+            raise WrongTargets('Неверное чило аргументов: ' + str(p.targets))
+        elif lopt == 1 and ltar > 0:
+            raise WrongTargets('Неверное чило аргументов: ' + str(p.targets))
+        elif lopt > 1:
+            raise WrongOptions('Странные опции: ' + str(p.options))
 
     def _process(self, p: Params):
         l = len(p.targets)
