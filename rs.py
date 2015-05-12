@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -u
+#!/usr/bin/env python3.4 -u
 import sys
 from os.path import dirname, realpath
 from platform.exception import WrongTargets
