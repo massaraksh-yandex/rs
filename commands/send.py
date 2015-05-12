@@ -1,3 +1,4 @@
+from os.path import expanduser
 from platform.exception import WrongOptions, WrongTargets
 from platform.delimer import checkNoDelimers
 from platform.command import Endpoint
@@ -33,7 +34,7 @@ class Send(Endpoint):
 
     def syncPath(self, sd: SyncData):
         remote = '{0}:{1}'.format(sd.host, sd.path)
-        callSync(sd.excludeFile, sd.path+'/', remote)
+        callSync(sd.excludeFile, expanduser(sd.path)+'/', remote)
 
 
     def _process(self, p: Params):

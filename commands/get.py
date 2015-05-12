@@ -6,6 +6,7 @@ from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.workspace import getWorkspaces
 from src.sync import SyncData, callSync
+from os.path import expanduser
 
 
 class Get(Endpoint):
@@ -31,7 +32,7 @@ class Get(Endpoint):
 
     def syncPath(self, sd: SyncData):
         remote = '{0}:{1}/'.format(sd.host, sd.remotePath)
-        callSync(sd.excludeFile, remote, sd.path)
+        callSync(sd.excludeFile, remote, expanduser(sd.path))
 
     def syncProjects(self, p: Params):
         for arg in p.targets:

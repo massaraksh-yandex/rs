@@ -25,7 +25,7 @@ class Workspace:
     def input(name):
         map = {}
         map['host'] = readLineWithPrompt('Хост', 'wmidevaddr')
-        map['root'] = readLineWithPrompt('Корень', '/home/massaraksh/ws')
+        map['root'] = readLineWithPrompt('Корень', '~/ws')
         map['include'] = readLineWithPrompt('Заголовочные файлы', join(map['root'], 'include'))
         map['src'] = readLineWithPrompt('Исходный код', join(map['root'], 'src'))
         map['etc'] = readLineWithPrompt('Конфигурационные файлы', join(map['root'], 'etc'))

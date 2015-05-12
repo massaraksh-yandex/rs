@@ -1,6 +1,5 @@
 import subprocess
 from src.config import Config
-from src.settings import Settings
 
 class SyncData:
     path = None
