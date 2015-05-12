@@ -1,7 +1,21 @@
 from platform.exception import WrongTargets, WrongDelimers, WrongOptions
 from platform.params import Params
 from src.project import getProjects
+from src.workspace import getWorkspaces
 
+
+class NotExist:
+    @staticmethod
+    def projects(projectList):
+        availableProjects = getProjects()
+        for proj in projectList:
+            if proj in availableProjects:
+                raise WrongTargets('Проект {0} существует'.format(proj))
+        return True
+
+    @staticmethod
+    def project(proj):
+        return NotExist.projects([proj])
 
 class Exist:
     @staticmethod
@@ -15,6 +29,25 @@ class Exist:
     @staticmethod
     def project(proj):
         return Exist.projects([proj])
+
+    @staticmethod
+    def workspace(ws):
+        if ws not in getWorkspaces():
+            raise WrongTargets('Нет такого рабочего окружения: ' + ws)
+        return True
+
+    @staticmethod
+    def option(p: Params, option):
+        if option not in p.options:
+            raise WrongOptions('Ожидалась опция {0}, однако получено {1}'.format(option, str(p.options)))
+        return True
+
+    @staticmethod
+    def inArray(arr, el, message = None):
+        if el not in arr:
+            m = 'Отсутсвует элемент {0}, получено {1}'.format(el, str(arr))
+            raise ValueError(m if message is None else message)
+        return True
 
 
 class Check:
@@ -92,6 +125,26 @@ class Size:
             m = 'Неверный размер массива: ожидалось {0}, получен {1}'.format(len(arr), size)
             raise ValueError(m if not message else message)
         return True
+
+def emptyCommand():
+    return [lambda p: None if Empty.delimers(p) and
+                              Empty.options(p) and
+                              Empty.targets(p)
+                       else raiseWrongParsing()]
+
+def singleOptionCommand(functor):
+    return [lambda p: None if Empty.delimers(p) and
+                              Empty.options(p) and
+                              Size.equals(p.targets, 1) and
+                              functor(p)
+                       else raiseWrongParsing()]
+
+def recieverOptions(map):
+    return [lambda p: p.targets[0] if Empty.delimers(p) and
+                                      Empty.options(p) and
+                                      Size.equals(p.targets, 1) and
+                                      Exist.inArray(map, p.targets[0])
+                           else raiseWrongParsing()]
 
 
 def raiseWrongParsing():

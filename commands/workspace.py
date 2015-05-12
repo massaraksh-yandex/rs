@@ -5,6 +5,7 @@ from platform.params import Params
 from platform.utils import makeCommandDict
 from src.workspace import getWorkspaces
 from src import workspace
+from src.check_utils import Exist, recieverOptions, singleOptionCommand, emptyCommand
 
 
 class List(Endpoint):
@@ -17,6 +18,9 @@ class List(Endpoint):
     def _help(self):
         return ['{path} - показывает список рабочих окружений',
                 '{path}']
+
+    def _checkNew(self):
+        return emptyCommand()
 
     def _check(self, p: Params):
         checkNoDelimers(p)
@@ -41,6 +45,9 @@ class Add(Endpoint):
     def _help(self):
         return ['{path} - создаёт запись о новом рабочем окружении',
                 '{path} рабочее_окружение']
+
+    def _checkNew(self, p: Params):
+        return singleOptionCommand(lambda p: Exist.workspace(p.targets[0]))
 
     def _check(self, p: Params):
         checkNoDelimers(p)
@@ -74,6 +81,9 @@ class Workspace(Command):
 
     def _help(self):
         return [pr(self).path() for k, pr in self.commands.items()]
+
+    def _checkNew(self):
+        return recieverOptions(self.commands)
 
     def _check(self, p: Params):
         if len(p.targets) == 0:

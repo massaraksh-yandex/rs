@@ -6,6 +6,7 @@ from platform.params import Params
 from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.sync import SyncData, callSync
+from src.check_utils import Empty, Size, raiseWrongParsing
 
 
 class Send(Endpoint):
@@ -18,6 +19,12 @@ class Send(Endpoint):
     def _help(self):
         return ['{path} - отправляет файлы на удалённый сервер',
                 '{path} название_проекта']
+
+    def _checkNew(self):
+        return [lambda p: None if Empty.delimers(p) and \
+                                  Empty.options(p) and \
+                                  Size.equals(p.targets, 1) \
+                               else raiseWrongParsing()]
 
     def _check(self, p: Params):
         checkNoDelimers(p)

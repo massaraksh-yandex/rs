@@ -62,7 +62,7 @@ class Make(Endpoint):
             self.syncIncludes(proj)
 
     def makeMakefile(self, p: Params, args: Args):
-        print('Проект ' + args.makeTargets[0])
+        print('Проект ' + args.makeTargets[0]) # поправить вывод
         make(args.makeTargets, args.projects[0], args.projects[1])
         self.syncIncludes(args.projects[0])
 
@@ -76,8 +76,8 @@ class Make(Endpoint):
         return Make.Args(makeTargets=p.targets[:ind], projects=p.targets[ind:])
 
 
-    def _checkNew(self, p: Params):
-        singleMakefile = lambda p: self.makeMakefile if Size.equals(p.delimer, 1, 'Неверное чилсло разделителей') and \
+    def _checkNew(self):
+        singleMakefile = lambda p: self.makeMakefile if Size.equals(p.delimer, 1, 'Неверное число разделителей') and \
                                                         Check.delimerType(p.delimer[0], SingleDelimer) and \
                                                         Empty.options(p) and \
                                                         NotEmpty.array(self.parse(p)[0]) and \
@@ -85,7 +85,7 @@ class Make(Endpoint):
                                                         Exist.project(self.parse(p)[1][0]) \
                                                      else raiseWrongParsing()
 
-        manyProjects = lambda p: self.makeProjects if Size.equals(p.delimer, 1, 'Неверное чилсло разделителей') and \
+        manyProjects = lambda p: self.makeProjects if Size.equals(p.delimer, 1, 'Неверное число разделителей') and \
                                                       Check.delimerType(p.delimer[0], DoubleDelimer) and \
                                                       Empty.options(p) and \
                                                       NotEmpty.array(self.parse(p)[0]) and \

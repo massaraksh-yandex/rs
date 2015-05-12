@@ -1,5 +1,6 @@
 from platform.params import Params
 from platform.utils import makeCommandDict
+from src.check_utils import singleOptionCommand, Exist, NotExist, recieverOptions, emptyCommand
 from src.project import getProjects
 from platform.exception import WrongOptions, WrongTargets
 from platform.command import Command, Endpoint
@@ -15,6 +16,9 @@ class List(Endpoint):
 
     def name(self):
         return 'list'
+
+    def _checkNew(self):
+        return emptyCommand()
 
     def _help(self):
         return ['{path} - показывает список проектов',
@@ -39,6 +43,9 @@ class Show(Endpoint):
 
     def name(self):
         return 'show'
+
+    def _checkNew(self):
+        return singleOptionCommand(lambda p: Exist.project(p.targets[0]))
 
     def _help(self):
         return ['{path} - показывает информацию о проекте',
@@ -67,6 +74,9 @@ class Remove(Endpoint):
     def _help(self):
         return ['{path} - удаляет запись о проекте',
                 '{path} название_проекта']
+
+    def _checkNew(self):
+        return singleOptionCommand(lambda p: Exist.project(p.targets[0]))
 
     def _check(self, p: Params):
         checkNoDelimers(p)
@@ -101,6 +111,9 @@ class Add(Endpoint):
         return ['{path} - создаёт запись о новом проекте',
                 '{path} название_проекта']
 
+    def _checkNew(self):
+        return singleOptionCommand(lambda p: NotExist.project(p.targets[0]))
+
     def _check(self, p: Params):
         checkNoDelimers(p)
         if len(p.targets) != 1:
@@ -129,6 +142,9 @@ class Project(Command):
 
     def name(self):
         return 'project'
+
+    def _checkNew(self):
+        return recieverOptions(self.commands)
 
     def _help(self):
         return [pr(self).path() for k, pr in self.commands.items()]
