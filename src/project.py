@@ -34,9 +34,9 @@ class Project:
         else:
             return project
 
-    def toSyncData(self) -> SyncData:
+    def toSyncData(self, forceWs = None) -> SyncData:
         path = join(self.path, self.name)
-        ws = getWorkspaces()[self.workspace]
+        ws = getWorkspaces()[self.workspace if forceWs is None else forceWs]
         return SyncData(path, ws.host, join(ws.src, self.name), getExcludeFileArg(path))
 
     def serialize(self):
