@@ -7,6 +7,7 @@ from src.project import getProjects
 from src.workspace import getWorkspaces
 from src.sync import SyncData, callSync
 from os.path import expanduser
+from src.check_utils import Exist, Empty, NotEmpty, Check, Size, raiseWrongParsing
 
 
 class Get(Endpoint):
@@ -19,6 +20,21 @@ class Get(Endpoint):
     def _help(self):
         return ['{path} - получает файлы с удалённого сервера',
                 '{path} название_проекта']
+
+    def _checkNew(self):
+        p = lambda p: self.syncProjects if Empty.delimers(p) and \
+                                           Empty.options(p) and \
+                                           NotEmpty.targets(p) and \
+                                           Exist.projects(p.targets) \
+                                        else raiseWrongParsing()
+
+        w = lambda p: self.syncWorkspaces if Empty.delimers(p) and \
+                                             NotEmpty.options(p) and \
+                                             Check.optionNamesInSet(p, ['workspace', 'path']) and \
+                                             Exist.option(p, 'workspace') and \
+                                             Exist.workspaces(p.targets) \
+                                          else raiseWrongParsing()
+        return [p, w]
 
     def _check(self, p: Params):
         checkNoDelimers(p)

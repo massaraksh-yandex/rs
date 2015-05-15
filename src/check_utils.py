@@ -32,8 +32,13 @@ class Exist:
 
     @staticmethod
     def workspace(ws):
-        if ws not in getWorkspaces():
-            raise WrongTargets('Нет такого рабочего окружения: ' + ws)
+        return Exist.workspaces([ws])
+
+    @staticmethod
+    def workspaces(wsList):
+        for ws in wsList:
+            if ws not in getWorkspaces():
+                raise WrongTargets('Нет такого рабочего окружения: ' + ws)
         return True
 
     @staticmethod
@@ -58,6 +63,12 @@ class Check:
                                 .format(delimer.__name__, type.__name__))
         return True
 
+    @staticmethod
+    def optionNamesInSet(p: Params, set):
+        for o in p.options:
+            if o not in set:
+                raise WrongOptions('Опция {0} отсутствует в списке разрешённых: {1}'.format(o, str(p.options)))
+        return True
 
 class Empty:
     @staticmethod
