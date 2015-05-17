@@ -6,8 +6,7 @@ from src.settings import Settings
 
 
 def readLineWithPrompt(message, default):
-    stdout.write('{0} [{1}]: '.format(message, default))
-    line = stdin.readline().rstrip()
+    line = input('{0} [{1}]: '.format(message, default)).rstrip()
     if len(line) != 0:
         return line
     else:

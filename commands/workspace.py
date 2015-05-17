@@ -1,11 +1,10 @@
-from platform.exception import WrongOptions, WrongTargets
-from platform.command import Command, Endpoint
-from platform.delimer import checkNoDelimers
+from platform.command import Command
+from platform.endpoint import Endpoint
 from platform.params import Params
 from platform.utils import makeCommandDict
 from src.workspace import getWorkspaces
 from src import workspace
-from src.check_utils import Exist, recieverOptions, singleOptionCommand, emptyCommand
+from src.check_utils import singleOptionCommand, emptyCommand, NotExist
 
 
 class List(Endpoint):
@@ -19,18 +18,10 @@ class List(Endpoint):
         return ['{path} - показывает список рабочих окружений',
                 '{path}']
 
-    def _checkNew(self):
-        return emptyCommand()
+    def _rules(self):
+        return emptyCommand(self.process)
 
-    def _check(self, p: Params):
-        checkNoDelimers(p)
-        if len(p.targets) != 0:
-            raise WrongTargets('Неверное число целей: ' + str(p.targets))
-
-        if len(p.options) != 0:
-            raise WrongOptions('Странные аргументы: ' + str(p.options))
-
-    def _process(self, p: Params):
+    def process(self, p: Params):
         for k, v in getWorkspaces().items():
             print('workspace: ' + k)
 
@@ -46,21 +37,13 @@ class Add(Endpoint):
         return ['{path} - создаёт запись о новом рабочем окружении',
                 '{path} рабочее_окружение']
 
-    def _checkNew(self, p: Params):
-        return singleOptionCommand(lambda p: Exist.workspace(p.targets[0]))
+    def _rules(self):
+        return singleOptionCommand(self.process)
 
-    def _check(self, p: Params):
-        checkNoDelimers(p)
-        if len(p.targets) != 1:
-            raise WrongTargets('Неверное число целей: ' + str(p.targets))
-        if len(p.options) != 0:
-            raise WrongOptions('Странные аргументы: ' + str(p.options))
-        if p.targets[0] in getWorkspaces():
-            raise WrongTargets('Проект {0} уже существует'.format(p.targets[0]))
-
-    def _process(self, p: Params):
-        ws = workspace.Workspace.input(p.targets[0])
-
+    def process(self, p: Params):
+        name = p.targets[0]
+        NotExist.workspace(name)
+        ws = workspace.Workspace.input(name)
         if ws is not None:
             ws.serialize()
             print('Рабочее окружение {0} добавлено'.format(ws.name))
@@ -68,32 +51,15 @@ class Add(Endpoint):
             print('Отмена...')
 
 
-
 class Workspace(Command):
-    commands = None
-
     def __init__(self, parent):
         super().__init__(parent)
-        self.commands = makeCommandDict([Add, List])
 
     def name(self):
         return 'workspace'
 
-    def _help(self):
-        return [pr(self).path() for k, pr in self.commands.items()]
-
-    def _checkNew(self):
-        return recieverOptions(self.commands)
-
-    def _check(self, p: Params):
-        if len(p.targets) == 0:
-            raise WrongTargets('Отсутствуют цели')
-
-
-    def _process(self, p: Params):
-        cmd = p.targets[0]
-        v = self.commands[cmd](self)
-        v.execute(p.argv[1:])
+    def _commands(self):
+        return makeCommandDict([Add, List])
 
 
 module_commands = makeCommandDict([Workspace])

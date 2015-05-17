@@ -2,11 +2,6 @@ from src.settings import Settings
 import json
 
 class Config:
-    defaultWorkspace = ''
-    homeFolderName = ''
-    excludeFileName = ''
-    argSync = ''
-
     def __init__(self):
         with open(Settings.CONFIG_FILE, 'r') as f:
             map = json.load(f)

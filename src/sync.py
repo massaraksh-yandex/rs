@@ -2,11 +2,6 @@ import subprocess
 from src.config import Config
 
 class SyncData:
-    path = None
-    host = None
-    remotePath = None
-    excludeFile = None
-
     def __init__(self, path = '', host = '', remote = '', exclude = ''):
         self.path = path
         self.host = host

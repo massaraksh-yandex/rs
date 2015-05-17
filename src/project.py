@@ -8,11 +8,6 @@ from src.workspace import getWorkspaces
 import json
 
 class Project:
-    name = ''
-    path = ''
-    workspace = ''
-    project_type = ''
-
     def __init__(self, name, map):
         self.name = name
         self.path = map['path']

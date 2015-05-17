@@ -6,13 +6,6 @@ from src.sync import SyncData
 import json
 
 class Workspace:
-    name = ''
-    host = ''
-    root = ''
-    include = ''
-    src = ''
-    etc = ''
-
     def __init__(self, name, map):
         self.name = name
         self.host = map['host']
@@ -51,12 +44,6 @@ class Workspace:
         print('Заголовочные файлы: ' + self.include)
         print('Исходный код: ' + self.src)
         print('Конфигурационные файлы: ' + self.etc)
-
-
-def getWorkspaceByHostAndPath(host, path) -> Workspace:
-    for key, ws in getWorkspaces().items():
-        if ws.host == host and ws.src == path:
-            return ws
 
 
 def getWorkspaces(path = Settings.WORKSPACES_DIR):

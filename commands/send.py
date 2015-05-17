@@ -1,12 +1,10 @@
 from os.path import expanduser
-from platform.exception import WrongOptions, WrongTargets
-from platform.delimer import checkNoDelimers
-from platform.command import Endpoint
+from platform.endpoint import Endpoint
 from platform.params import Params
 from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.sync import SyncData, callSync
-from src.check_utils import Empty, Size, raiseWrongParsing
+from src.check_utils import Exist, singleOptionCommand
 
 
 class Send(Endpoint):
@@ -20,32 +18,16 @@ class Send(Endpoint):
         return ['{path} - отправляет файлы на удалённый сервер',
                 '{path} название_проекта']
 
-    def _checkNew(self):
-        return [lambda p: None if Empty.delimers(p) and \
-                                  Empty.options(p) and \
-                                  Size.equals(p.targets, 1) \
-                               else raiseWrongParsing()]
-
-    def _check(self, p: Params):
-        checkNoDelimers(p)
-        if len(p.targets) == 0:
-            raise WrongTargets('Неверное число целей: ' + str(p.targets))
-
-        projects = getProjects()
-        for arg in p.targets:
-            if arg not in projects:
-                raise WrongTargets('Нет такого проекта: ' + str(p.targets))
-
-        if len(p.options) != 0:
-            raise WrongOptions('Странные аргументы: ' + str(p.options))
-
     def syncPath(self, sd: SyncData):
         remote = '{0}:{1}'.format(sd.host, sd.path)
         callSync(sd.excludeFile, expanduser(sd.path)+'/', remote)
 
+    def _rules(self):
+        return singleOptionCommand(self.send)
 
-    def _process(self, p: Params):
+    def send(self, p: Params):
         for arg in p.targets:
+            Exist.project(arg)
             sd = getProjects()[arg].toSyncData()
             sd.showSyncInfo()
             self.syncPath(sd)

@@ -17,6 +17,18 @@ class NotExist:
     def project(proj):
         return NotExist.projects([proj])
 
+    @staticmethod
+    def workspaces(wsList):
+        for ws in wsList:
+            if ws in getWorkspaces():
+                raise WrongTargets('Рабочее окружение {0} существует'.format(ws))
+        return True
+
+    @staticmethod
+    def workspace(ws):
+        return NotExist.workspaces([ws])
+
+
 class Exist:
     @staticmethod
     def projects(projectList):
@@ -69,6 +81,7 @@ class Check:
             if o not in set:
                 raise WrongOptions('Опция {0} отсутствует в списке разрешённых: {1}'.format(o, str(p.options)))
         return True
+
 
 class Empty:
     @staticmethod
@@ -137,25 +150,20 @@ class Size:
             raise ValueError(m if not message else message)
         return True
 
-def emptyCommand():
-    return [lambda p: None if Empty.delimers(p) and
+
+def emptyCommand(func):
+    return [lambda p: func if Empty.delimers(p) and
                               Empty.options(p) and
                               Empty.targets(p)
                        else raiseWrongParsing()]
 
-def singleOptionCommand(functor):
-    return [lambda p: None if Empty.delimers(p) and
-                              Empty.options(p) and
-                              Size.equals(p.targets, 1) and
-                              functor(p)
-                       else raiseWrongParsing()]
 
-def recieverOptions(map):
-    return [lambda p: p.targets[0] if Empty.delimers(p) and
-                                      Empty.options(p) and
-                                      Size.equals(p.targets, 1) and
-                                      Exist.inArray(map, p.targets[0])
-                           else raiseWrongParsing()]
+def singleOptionCommand(res, functor = lambda p: True):
+    return [lambda p: res if Empty.delimers(p) and
+                             Empty.options(p) and
+                             Size.equals(p.targets, 1) and
+                             functor(p)
+                      else raiseWrongParsing()]
 
 
 def raiseWrongParsing():
