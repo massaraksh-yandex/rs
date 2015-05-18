@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.4 -u
 import sys
 from os.path import dirname, realpath
+from platform import utils
 from platform.command import Command
 from platform.utils import importCommands
 
@@ -18,5 +19,5 @@ class Rs(Command):
 
 
 if __name__ == "__main__":
+    utils.setupCodecs()
     Rs(None).execute(sys.argv[1:])
-    # utils.setupCodecs()
