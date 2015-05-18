@@ -18,7 +18,7 @@ class Get(Endpoint):
     def _help(self):
         return ['{path} - получает файлы с удалённого сервера',
                 '{path} --workspace [--path=src] окружение - получает часть рабочего окружения',
-                '\tПолучает папку --path рабочего окружения',
+                '{space}Получает папку --path рабочего окружения',
                 '{path} проект']
 
     def _rules(self):

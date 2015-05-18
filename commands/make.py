@@ -15,7 +15,7 @@ import sys
 
 def make(make_targets, project, makefile_path = ''):
     def getRealWorkspacePath(ws: Workspace):
-        sp = subprocess.Popen(['ssh', ws.host, 'cd {0}; readlink -m .'.format(ws.root)], stdout=subprocess.PIPE)
+        sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.root)], stdout=subprocess.PIPE)
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
 
     prj = getProjects()[project]

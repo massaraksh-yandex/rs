@@ -22,4 +22,4 @@ class Config:
         print('Название файла с несинхронизируемыми файлами')
         print('\texcludeFileName: ' + self.excludeFileName)
         print('Опции синхронизации')
-        print('\targSync: ' + self.argSync)
+        print('\targSync: ' + str(self.argSync))

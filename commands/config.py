@@ -16,7 +16,8 @@ class Config(Endpoint):
         return ['{path} - настройки опций программы',
                 '{path} --list - показывает текущие опции',
                 '{path} опция - печатает значение опции',
-                '{path} опция новое_значение - устанавливает новое значение для опции']
+                '{path} опция значение - устанавливает новое значение для опции',
+                '{path} опция значение1,значение2 - устанавливает значение опции-массива']
 
     def _rules(self):
         a = lambda p: self.showOptions if Empty.delimers(p) and \
@@ -44,7 +45,11 @@ class Config(Endpoint):
 
     def setOption(self, p: Params):
         cfg = config.Config()
-        setattr(cfg, p.targets[0], p.targets[1])
+        attr = p.targets[0]
+        if isinstance(getattr(cfg, attr), list):
+            setattr(cfg, p.targets[0], p.targets[1].split(','))
+        else:
+            setattr(cfg, p.targets[0], p.targets[1])
         cfg.serialize()
 
 

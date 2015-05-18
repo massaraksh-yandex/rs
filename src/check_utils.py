@@ -144,6 +144,13 @@ class Size:
         return True
 
     @staticmethod
+    def moreOrEquals(arr, size, message = None):
+        if len(arr) < size:
+            m = 'Неверный размер массива: ожидалось как минимум {0}, получен {1}'.format(len(arr), size)
+            raise ValueError(m if not message else message)
+        return True
+
+    @staticmethod
     def notEquals(arr, size, message = None):
         if len(arr) == size:
             m = 'Неверный размер массива: ожидалось {0}, получен {1}'.format(len(arr), size)
