@@ -3,7 +3,6 @@ from glob import glob
 from os.path import join, basename, splitext
 from src.utils import getWorkspacePathByName, getExcludeFileArg, readLineWithPrompt
 from src.sync import SyncData
-from commands.config import Config
 import json
 
 class Workspace:
@@ -23,9 +22,6 @@ class Workspace:
         map['include'] = readLineWithPrompt('Заголовочные файлы', join(map['root'], 'include'))
         map['src'] = readLineWithPrompt('Исходный код', join(map['root'], 'src'))
         map['etc'] = readLineWithPrompt('Конфигурационные файлы', join(map['root'], 'etc'))
-
-        if readLineWithPrompt('Рабочее откужение по умолчанию? (yes/no)', 'no') == 'yes':
-            Config(None).execute('defaultWorkspace {0}'.format(name))
 
         ws = Workspace(name, map)
         if readLineWithPrompt('Всё верно (yes/no)', 'no') != 'yes':

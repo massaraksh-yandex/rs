@@ -59,7 +59,7 @@ class Config(Endpoint):
         cfg.serialize()
 
     def initConfig(self, p: Params):
-        config.Config.defaultCongifig().serialize()
+        config.Config.defaultConfig().serialize()
 
 
 module_commands = makeCommandDict([Config])
