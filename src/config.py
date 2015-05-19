@@ -2,13 +2,15 @@ from src.settings import Settings
 import json
 
 class Config:
-    def __init__(self):
-        with open(Settings.CONFIG_FILE, 'r') as f:
-            map = json.load(f)
-            self.defaultWorkspace = map['defaultWorkspace']
-            self.homeFolderName = map['homeFolderName']
-            self.excludeFileName = map['excludeFileName']
-            self.argSync = map['argSync']
+    def __init__(self, map = None):
+        if map is None:
+            with open(Settings.CONFIG_FILE, 'r') as f:
+                map = json.load(f)
+
+        self.defaultWorkspace = map['defaultWorkspace']
+        self.homeFolderName = map['homeFolderName']
+        self.excludeFileName = map['excludeFileName']
+        self.argSync = map['argSync']
 
     def serialize(self):
         with open(Settings.CONFIG_FILE, 'w') as f:
@@ -23,3 +25,12 @@ class Config:
         print('\texcludeFileName: ' + self.excludeFileName)
         print('Опции синхронизации')
         print('\targSync: ' + str(self.argSync))
+
+    @staticmethod
+    def defaultConfig():
+        map = {}
+        map['defaultWorkspace'] = ''
+        map['homeFolderName'] = '/home'
+        map['excludeFileName'] = 'rsignore'
+        map['argSync'] = ['-avcC', '--out-format=%f -- %b %o']
+        return Config(map)

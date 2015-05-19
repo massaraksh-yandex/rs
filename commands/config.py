@@ -15,6 +15,7 @@ class Config(Endpoint):
     def _help(self):
         return ['{path} - настройки опций программы',
                 '{path} --list - показывает текущие опции',
+                '{path} --init - возвращает конфигурационный файл к начальному состоянию',
                 '{path} опция - печатает значение опции',
                 '{path} опция значение - устанавливает новое значение для опции',
                 '{path} опция значение1,значение2 - устанавливает значение опции-массива']
@@ -35,7 +36,12 @@ class Config(Endpoint):
                                         Empty.options(p) \
                                      else raiseWrongParsing()
 
-        return [a, b, c]
+        d = lambda p: self.initConfig if Empty.delimers(p) and \
+                                          Empty.targets(p) and \
+                                          Exist.option(p, 'init') \
+                                       else raiseWrongParsing()
+
+        return [a, b, c, d]
 
     def showOptions(self, p: Params):
         config.Config().print()
@@ -51,6 +57,9 @@ class Config(Endpoint):
         else:
             setattr(cfg, p.targets[0], p.targets[1])
         cfg.serialize()
+
+    def initConfig(self, p: Params):
+        config.Config.defaultCongifig().serialize()
 
 
 module_commands = makeCommandDict([Config])
