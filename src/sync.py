@@ -16,7 +16,10 @@ class SyncData:
         print('Options: {0} {1}'.format(' '.join(cfg.argSync), self.excludeFile))
 
 
-def callSync(exclude, src, dest):
+def callSync(exclude, src, dest, dryRun = False):
     cfg = Config()
-    args = ['rsync'] + cfg.argSync + [ '--cvs-exclude', exclude, src, dest]
+    args = ['rsync'] + cfg.argSync
+    if dryRun:
+        args.append('-n')
+    args = args + ['--cvs-exclude', exclude, src, dest]
     subprocess.call(args)
