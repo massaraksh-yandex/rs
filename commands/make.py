@@ -1,4 +1,5 @@
 from collections import namedtuple
+from platform.color import colored, Color, start, end
 from platform.exception import WrongTargets
 from platform.delimer import SingleDelimer, DoubleDelimer
 from platform.utils import makeCommandDict
@@ -11,6 +12,34 @@ from commands.get import Get
 from src.check_utils import Exist, Empty, NotEmpty, Check, Size, raiseWrongParsing
 import subprocess
 import sys
+import re
+
+def highlight(str):
+    def transform(str, ind, c: Color):
+        return str[:ind[0]] + start(c) + str[ind[0]:ind[1]]  + end() + str[ind[1]:]
+    def colorSubstrings(str, regex, c: Color):
+        for s in regex.finditer(str):
+            str = transform(str, s.span(), c)
+        return str
+    def files(str):
+        return colorSubstrings(str, re.compile(r"\/[^\:]*"), Color.green)
+    def errors(str):
+        return colorSubstrings(str, re.compile(r"\serror\:"), Color.red)
+    def warnings(str):
+        return colorSubstrings(str, re.compile(r"\swarning\:"), Color.yellow)
+    def cmakeProgress(str):
+        if str.find('] Bui') != -1:
+            return True, transform(str, (0, len(str)), Color.violent)
+        else:
+            return False, str
+    cmake = cmakeProgress(str)
+    if cmake[0]:
+        return cmake[1]
+    else:
+        str = files(str)
+        str = errors(str)
+        str = warnings(str)
+        return str
 
 
 def make(make_targets, project, makefile_path = ''):
@@ -34,7 +63,7 @@ def make(make_targets, project, makefile_path = ''):
         line = proc.stdout.readline().decode("utf-8")
         line = line.replace(path, ws.root)
         line = line.replace('/home', cfg.homeFolderName)
-        sys.stderr.write(line)
+        sys.stderr.write(highlight(line))
 
 
 class Make(Endpoint):
