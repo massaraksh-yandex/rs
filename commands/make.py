@@ -1,5 +1,5 @@
 from collections import namedtuple
-from platform.color import colored, Color, start, end
+from platform.color import Color, start, end, colored, Style
 from platform.exception import WrongTargets
 from platform.delimer import SingleDelimer, DoubleDelimer
 from platform.utils import makeCommandDict
@@ -22,13 +22,24 @@ def highlight(str):
             str = transform(str, s.span(), c)
         return str
     def files(str):
-        return colorSubstrings(str, re.compile(r"\/[^\:]*"), Color.green)
+        return colorSubstrings(str, re.compile(r"^\/[^\:]*"), Color.blue)
     def errors(str):
-        return colorSubstrings(str, re.compile(r"\serror\:"), Color.red)
+        str = colorSubstrings(str, re.compile(r"\serror\:"), Color.red)
+        return colorSubstrings(str, re.compile(r"\sОшибка"), Color.red)
     def warnings(str):
         return colorSubstrings(str, re.compile(r"\swarning\:"), Color.yellow)
+    def colon(str):
+        return re.sub(r",", colored(',', Color.green), str)
+    def delimer(str):
+        return re.sub(r"\;", ';\n', str)
+    def angleBrackets(str):
+        str = re.sub(r"<", colored('<',  Color.green), str)
+        return re.sub(r">", colored('>', Color.green), str)
+    def squareBracketWithWith(str):
+        return re.sub(r"\[with", '\n[\n with', str)
+
     def cmakeProgress(str):
-        if str.find('] Bui') != -1:
+        if re.compile(r'\[\s*\d+%\]').match(str) is not None:
             return True, transform(str, (0, len(str)), Color.violent)
         else:
             return False, str
@@ -36,9 +47,13 @@ def highlight(str):
     if cmake[0]:
         return cmake[1]
     else:
+        str = squareBracketWithWith(str)
+        str = delimer(str)
         str = files(str)
         str = errors(str)
         str = warnings(str)
+        str = colon(str)
+        str = angleBrackets(str)
         return str
 
 
