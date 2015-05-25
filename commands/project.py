@@ -10,9 +10,6 @@ from src import project
 
 
 class List(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'list'
 
@@ -29,9 +26,6 @@ class List(Endpoint):
 
 
 class Show(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'show'
 
@@ -49,9 +43,6 @@ class Show(Endpoint):
 
 
 class Remove(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'rm'
 
@@ -77,9 +68,6 @@ class Remove(Endpoint):
 
 
 class Add(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'add'
 
@@ -102,9 +90,6 @@ class Add(Endpoint):
 
 
 class Project(Command):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'project'
 

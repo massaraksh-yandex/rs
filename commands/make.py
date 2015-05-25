@@ -89,9 +89,6 @@ def make(make_targets, project, makefile_path = ''):
 class Make(Endpoint):
     Args = namedtuple('Args', ['makeTargets', 'projects'])
 
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'make'
 

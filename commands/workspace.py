@@ -8,9 +8,6 @@ from src.check_utils import singleOptionCommand, emptyCommand, NotExist
 
 
 class List(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'list'
 
@@ -27,9 +24,6 @@ class List(Endpoint):
 
 
 class Add(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'add'
 
@@ -52,9 +46,6 @@ class Add(Endpoint):
 
 
 class Workspace(Command):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'workspace'
 

@@ -7,9 +7,6 @@ from src.check_utils import singleOptionCommand, emptyCommand
 
 
 class Gdb(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'gdb'
 

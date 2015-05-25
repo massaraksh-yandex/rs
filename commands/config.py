@@ -6,9 +6,6 @@ from src.check_utils import Exist, Empty, Size, raiseWrongParsing
 
 
 class Config(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'config'
 

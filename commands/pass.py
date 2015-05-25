@@ -4,9 +4,6 @@ from platform.utils import makeCommandDict
 
 
 class Pass(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'pass'
 
