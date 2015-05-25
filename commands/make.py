@@ -14,9 +14,9 @@ import subprocess
 import sys
 import re
 
-def highlight(str):
-    def transform(str, ind, c: Color):
-        return str[:ind[0]] + start(c) + str[ind[0]:ind[1]]  + end() + str[ind[1]:]
+def highlight(string):
+    def transform(s, ind, c: Color):
+        return s[:ind[0]] + start(c) + s[ind[0]:ind[1]]  + end() + s[ind[1]:]
     def colorSubstrings(str, regex, c: Color):
         for s in regex.finditer(str):
             str = transform(str, s.span(), c)
@@ -43,18 +43,18 @@ def highlight(str):
             return True, transform(str, (0, len(str)), Color.violent)
         else:
             return False, str
-    cmake = cmakeProgress(str)
+    cmake = cmakeProgress(string)
     if cmake[0]:
         return cmake[1]
     else:
-        str = squareBracketWithWith(str)
-        str = delimer(str)
-        str = files(str)
-        str = errors(str)
-        str = warnings(str)
-        str = colon(str)
-        str = angleBrackets(str)
-        return str
+        string = squareBracketWithWith(string)
+        string = delimer(string)
+        string = files(string)
+        string = errors(string)
+        string = warnings(string)
+        string = colon(string)
+        string = angleBrackets(string)
+        return string
 
 
 def make(make_targets, project, makefile_path = ''):
@@ -72,13 +72,18 @@ def make(make_targets, project, makefile_path = ''):
 
     ws = getWorkspaces()[prj.workspace]
     path = getRealWorkspacePath(ws)
-    proc = subprocess.Popen(['ssh', ws.host, command], stdout=subprocess.PIPE)
     cfg = Config()
-    while proc.poll() is None:
+    proc = subprocess.Popen(['ssh', ws.host, command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+    while True:
         line = proc.stdout.readline().decode("utf-8")
+        if line == '':
+            break
+
         line = line.replace(path, ws.root)
         line = line.replace('/home', cfg.homeFolderName)
-        sys.stderr.write(highlight(line))
+        line = highlight(line)
+        sys.stderr.write(line)
+        sys.stderr.flush()
 
 
 class Make(Endpoint):
