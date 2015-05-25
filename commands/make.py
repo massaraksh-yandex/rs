@@ -143,4 +143,4 @@ class Make(Endpoint):
         self._syncIncludes(args.projects[0])
 
 
-module_commands = makeCommandDict([Make])
+module_commands = makeCommandDict(Make)

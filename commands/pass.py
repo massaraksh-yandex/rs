@@ -18,4 +18,4 @@ class Pass(Endpoint):
         pass
 
 
-module_commands = makeCommandDict([Pass])
+module_commands = makeCommandDict(Pass)

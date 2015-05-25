@@ -59,4 +59,4 @@ class Config(Endpoint):
         config.Config.defaultConfig().serialize()
 
 
-module_commands = makeCommandDict([Config])
+module_commands = makeCommandDict(Config)

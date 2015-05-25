@@ -23,4 +23,4 @@ class Gdb(Endpoint):
             pass
 
 
-module_commands = makeCommandDict([Gdb])
+module_commands = makeCommandDict(Gdb)

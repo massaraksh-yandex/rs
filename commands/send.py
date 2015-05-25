@@ -40,4 +40,4 @@ class Send(Endpoint):
             self.syncPath(sd, p)
 
 
-module_commands = makeCommandDict([Send])
+module_commands = makeCommandDict(Send)

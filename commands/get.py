@@ -61,4 +61,4 @@ class Get(Endpoint):
         self._syncPath(sd, p)
 
 
-module_commands = makeCommandDict([Get])
+module_commands = makeCommandDict(Get)

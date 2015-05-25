@@ -7,9 +7,6 @@ from platform.utils import importCommands
 
 
 class Rs(Command):
-    def __init__(self, parent):
-        super().__init__(parent)
-
     def name(self):
         return 'rs'
 

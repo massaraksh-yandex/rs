@@ -50,7 +50,7 @@ class Workspace(Command):
         return 'workspace'
 
     def _commands(self):
-        return makeCommandDict([Add, List])
+        return makeCommandDict(Add, List)
 
 
-module_commands = makeCommandDict([Workspace])
+module_commands = makeCommandDict(Workspace)

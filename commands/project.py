@@ -94,7 +94,7 @@ class Project(Command):
         return 'project'
 
     def _commands(self):
-        return makeCommandDict([Add, List, Remove, Show])
+        return makeCommandDict(Add, List, Remove, Show)
 
 
-module_commands = makeCommandDict([Project])
+module_commands = makeCommandDict(Project)
