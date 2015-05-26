@@ -1,5 +1,5 @@
 from collections import namedtuple
-from platform.color import Color, start, end, colored, Style
+from platform.color import Color, start, end, colored, Style, Highlighter, RR, CR
 from platform.exception import WrongTargets
 from platform.delimer import SingleDelimer, DoubleDelimer
 from platform.utils import makeCommandDict
@@ -12,49 +12,13 @@ from commands.get import Get
 from src.check_utils import Exist, Empty, NotEmpty, Check, Size, raiseWrongParsing
 import subprocess
 import sys
-import re
 
-def highlight(string):
-    def transform(s, ind, c: Color):
-        return s[:ind[0]] + start(c) + s[ind[0]:ind[1]]  + end() + s[ind[1]:]
-    def colorSubstrings(str, regex, c: Color):
-        for s in regex.finditer(str):
-            str = transform(str, s.span(), c)
-        return str
-    def files(str):
-        return colorSubstrings(str, re.compile(r"^\/[^\:]*"), Color.blue)
-    def errors(str):
-        str = colorSubstrings(str, re.compile(r"\serror\:"), Color.red)
-        return colorSubstrings(str, re.compile(r"\sОшибка"), Color.red)
-    def warnings(str):
-        return colorSubstrings(str, re.compile(r"\swarning\:"), Color.yellow)
-    def colon(str):
-        return re.sub(r",", colored(',', Color.green), str)
-    def delimer(str):
-        return re.sub(r"\;", ';\n', str)
-    def angleBrackets(str):
-        str = re.sub(r"<", colored('<',  Color.green), str)
-        return re.sub(r">", colored('>', Color.green), str)
-    def squareBracketWithWith(str):
-        return re.sub(r"\[with", '\n[\n with', str)
 
-    def cmakeProgress(str):
-        if re.compile(r'\[\s*\d+%\]').match(str) is not None:
-            return True, transform(str, (0, len(str)), Color.violent)
-        else:
-            return False, str
-    cmake = cmakeProgress(string)
-    if cmake[0]:
-        return cmake[1]
-    else:
-        string = squareBracketWithWith(string)
-        string = delimer(string)
-        string = files(string)
-        string = errors(string)
-        string = warnings(string)
-        string = colon(string)
-        string = angleBrackets(string)
-        return string
+hl = Highlighter(RR(r"\[with", '\n[\n with'), RR(r"\;", ';\n'),
+                 CR(r"^\/[^\:]*", Color.blue), CR(r"\serror\:", Color.red, Style.bold),
+                 CR(r"\sОшибка", Color.red, Style.bold), CR(r"\swarning\:", Color.yellow),
+                 RR(r",", ',', Color.green), RR(r"<", '<', Color.green),
+                 RR(r">", '>', Color.green), CR(r"\[\s*\d+%\]", Color.violent))
 
 
 def make(make_targets, project, makefile_path = ''):
@@ -81,7 +45,7 @@ def make(make_targets, project, makefile_path = ''):
 
         line = line.replace(path, ws.root)
         line = line.replace('/home', cfg.homeFolderName)
-        line = highlight(line)
+        line = hl.highlight(line)
         sys.stderr.write(line)
         sys.stderr.flush()
 
