@@ -9,7 +9,7 @@ from src.config import Config
 from src.workspace import Workspace, getWorkspaces
 from src.project import getProjects
 from commands.get import Get
-from src.check_utils import Exist, Empty, NotEmpty, Check, Size, raiseWrongParsing
+from src.check_utils import Exist, NotEmpty, Check, Size, raiseWrongParsing
 import subprocess
 import sys
 
@@ -21,7 +21,7 @@ hl = Highlighter(RR(r"\[with", '\n[\n with'), RR(r"\;", ';\n'),
                  RR(r">", '>', Color.green), CR(r"\[\s*\d+%\]", Color.violent))
 
 
-def make(make_targets, project, makefile_path = ''):
+def make(make_targets, project, makefile_path = '', jobs = None):
     def getRealWorkspacePath(ws: Workspace):
         sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.root)], stdout=subprocess.PIPE)
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
@@ -29,7 +29,7 @@ def make(make_targets, project, makefile_path = ''):
     prj = getProjects()[project]
 
     cd = 'cd {0}/{1}/{2}'.format(prj.path, project, makefile_path)
-    jobs = 'CORENUM=$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)'
+    jobs = 'CORENUM=' + (jobs or '$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)')
     make = 'make {0} -j$CORENUM 2>&1'.format(' '.join(make_targets))
 
     command = "{0} && {1} && {2}".format(cd, jobs, make)
@@ -64,14 +64,14 @@ class Make(Endpoint):
     def _rules(self):
         singleMakefile = lambda p: self.makeMakefile if Size.equals(p.delimer, 1, 'Неверное число разделителей') and \
                                                         Check.delimerType(p.delimer[0], SingleDelimer) and \
-                                                        Empty.options(p) and \
+                                                        Check.optionNamesInSet(p, 'jobs') and \
                                                         NotEmpty.array(self._parse(p).makeTargets) and \
                                                         Size.equals(self._parse(p).projects, 2) \
                                                      else raiseWrongParsing()
 
         manyProjects = lambda p: self.makeProjects if Size.equals(p.delimer, 1, 'Неверное число разделителей') and \
                                                       Check.delimerType(p.delimer[0], DoubleDelimer) and \
-                                                      Empty.options(p) and \
+                                                      Check.optionNamesInSet(p, 'jobs') and \
                                                       NotEmpty.array(self._parse(p).makeTargets) and \
                                                       NotEmpty.array(self._parse(p).projects) \
                                                    else raiseWrongParsing()
@@ -96,14 +96,14 @@ class Make(Endpoint):
         for proj in args.projects:
             Exist.project(proj)
             print('Проект ' + proj)
-            make(args.makeTargets, proj)
+            make(args.makeTargets, proj, jobs=p.options['jobs'] or None)
             self._syncIncludes(proj)
 
     def makeMakefile(self, p: Params):
         args = self._parse(p)
         Exist.project(args.projects[0])
         print('Проект ' + args.makeTargets[0]) # поправить вывод
-        make(args.makeTargets, args.projects[0], args.projects[1])
+        make(args.makeTargets, args.projects[0], args.projects[1], p.options['jobs'] or None)
         self._syncIncludes(args.projects[0])
 
 
