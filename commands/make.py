@@ -1,5 +1,5 @@
 from collections import namedtuple
-from platform.color import Color, start, end, colored, Style, Highlighter, RR, CR
+from platform.color import Color, Style, Highlighter, RR, CR
 from platform.exception import WrongTargets
 from platform.delimer import SingleDelimer, DoubleDelimer
 from platform.utils import makeCommandDict
@@ -15,7 +15,7 @@ import sys
 
 
 hl = Highlighter(RR(r"\[with", '\n[\n with'), RR(r"\;", ';\n'),
-                 CR(r"^\/[^\:]*", Color.blue), CR(r"\serror\:", Color.red, Style.bold),
+                 CR(r"^[\/~][^\:]*", Color.cyan, Style.underline), CR(r"\serror\:", Color.red, Style.bold),
                  CR(r"\sОшибка", Color.red, Style.bold), CR(r"\swarning\:", Color.yellow),
                  RR(r",", ',', Color.green), RR(r"<", '<', Color.green),
                  RR(r">", '>', Color.green), CR(r"\[\s*\d+%\]", Color.violent))
