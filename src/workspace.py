@@ -46,9 +46,9 @@ class Workspace:
         print('Конфигурационные файлы: ' + self.etc)
 
 
-def getWorkspaces(path = Settings.WORKSPACES_DIR):
+def getWorkspaces():
     ret = {}
-    for name in glob(join(path, '*.json')):
+    for name in glob(join(Settings().WORKSPACES_DIR, '*.json')):
         with open(name, 'r') as f:
             name = basename(splitext(name)[0])
             ret[name] = Workspace(name, json.load(f))

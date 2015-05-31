@@ -44,9 +44,9 @@ class Project:
         print('Тип проекта: ' + self.project_type)
         print('Рабочее окружение: ' + self.workspace)
 
-def getProjects(path = Settings.REMOTES_DIR):
+def getProjects():
     ret = {}
-    for name in glob(join(path, '*.json')):
+    for name in glob(join(Settings().REMOTES_DIR, '*.json')):
         with open(name, 'r') as f:
             name = basename(splitext(name)[0])
             ret[name] = Project(name, json.load(f))

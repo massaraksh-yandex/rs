@@ -14,17 +14,16 @@ def readLineWithPrompt(message, default):
 
 
 def getProjectPathByName(name):
-    return join(Settings.REMOTES_DIR, name + '.json')
+    return join(Settings().REMOTES_DIR, name + '.json')
 
 def getWorkspacePathByName(name):
-    return join(Settings.WORKSPACES_DIR, name + '.json')
+    return join(Settings().WORKSPACES_DIR, name + '.json')
 
 def getExcludeFileArg(path):
     cfg = Config()
-    if not isfile(join(path, cfg.excludeFileName)):
-        file = join(Settings.CONFIG_DIR, cfg.excludeFileName)
-    else:
-        file = join(path, cfg.excludeFileName)
+    path = path if isfile(join(path, cfg.excludeFileName)) else Settings().CONFIG_DIR
+    file = join(path, cfg.excludeFileName)
+
     return '--exclude-from={0}'.format(file)
 
 
