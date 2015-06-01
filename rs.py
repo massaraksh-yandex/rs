@@ -4,6 +4,7 @@ from os.path import dirname, realpath
 from platform import utils
 from platform.command import Command
 from platform.utils import importCommands
+from src.config import Config
 
 
 class Rs(Command):
@@ -16,5 +17,5 @@ class Rs(Command):
 
 
 if __name__ == "__main__":
-    utils.setupCodecs()
+    utils.main(Config())
     Rs(None).execute(sys.argv[1:])
