@@ -96,14 +96,14 @@ class Make(Endpoint):
         for proj in args.projects:
             Exist.project(proj)
             print('Проект ' + proj)
-            make(args.makeTargets, proj, jobs=p.options['jobs'] or None)
+            make(args.makeTargets, proj, jobs=p.options['jobs'] if 'jobs' in p.options else None)
             self._syncIncludes(proj)
 
     def makeMakefile(self, p: Params):
         args = self._parse(p)
         Exist.project(args.projects[0])
         print('Проект ' + args.makeTargets[0]) # поправить вывод
-        make(args.makeTargets, args.projects[0], args.projects[1], p.options['jobs'] or None)
+        make(args.makeTargets, args.projects[0], args.projects[1], jobs=p.options['jobs'] if 'jobs' in p.options else None)
         self._syncIncludes(args.projects[0])
 
 
