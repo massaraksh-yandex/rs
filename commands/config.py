@@ -41,7 +41,7 @@ class Config(Endpoint):
         return [a, b, c, d]
 
     def showOptions(self, p: Params):
-        config.Config().print()
+        print(config.Config())
 
     def showOption(self, p: Params):
         print(getattr(config.Config(), p.targets[0]))

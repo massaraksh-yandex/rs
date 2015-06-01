@@ -1,30 +1,36 @@
+from platform import config
 from src.settings import Settings
-import json
 
-class Config:
-    def __init__(self, map = None):
-        if map is None:
-            with open(Settings.CONFIG_FILE, 'r') as f:
-                map = json.load(f)
+class Config(config.Config):
+    def __init__(self, m = None):
+        super().__init__(map=m, settings=Settings())
 
-        self.defaultWorkspace = map['defaultWorkspace']
-        self.homeFolderName = map['homeFolderName']
-        self.excludeFileName = map['excludeFileName']
-        self.argSync = map['argSync']
+    def __str__(self):
+        s =  'Стандартное рабочее окружение\n'
+        s += '\tdefaultWorkspace: ' + self.defaultWorkspace + '\n'
+        s += 'Название папки /home\n'
+        s += '\thomeFolderName: ' + self.homeFolderName + '\n'
+        s += 'Название файла с несинхронизируемыми файлами\n'
+        s += '\texcludeFileName: ' + self.excludeFileName + '\n'
+        s += 'Опции синхронизации\n'
+        s += '\targSync: ' + str(self.argSync) + '\n'
+        return s
 
-    def serialize(self):
-        with open(Settings.CONFIG_FILE, 'w') as f:
-            json.dump(self.__dict__, f, indent=4, sort_keys=True)
+    @property
+    def defaultWorkspace(self) -> str:
+        return self.params['defaultWorkspace']
 
-    def print(self):
-        print('Стандартное рабочее окружение')
-        print('\tdefaultWorkspace: ' + self.defaultWorkspace)
-        print('Название папки /home')
-        print('\thomeFolderName: ' + self.homeFolderName)
-        print('Название файла с несинхронизируемыми файлами')
-        print('\texcludeFileName: ' + self.excludeFileName)
-        print('Опции синхронизации')
-        print('\targSync: ' + str(self.argSync))
+    @property
+    def homeFolderName(self) -> str:
+        return self.params['homeFolderName']
+
+    @property
+    def excludeFileName(self) -> str:
+        return self.params['excludeFileName']
+
+    @property
+    def argSync(self) -> []:
+        return self.params['argSync']
 
     @staticmethod
     def defaultConfig():
