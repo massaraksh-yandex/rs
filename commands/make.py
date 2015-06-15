@@ -10,6 +10,7 @@ from src.workspace import Workspace, getWorkspaces
 from src.project import getProjects
 from commands.get import Get
 from src.check_utils import Exist, NotEmpty, Check, Size, raiseWrongParsing
+from platform.processor import processor
 import subprocess
 import sys
 
@@ -21,33 +22,52 @@ hl = Highlighter(RR(r"\[with", '\n[\n with'), RR(r"\;", ';\n'),
                  RR(r">", '>', Color.green), CR(r"\[\s*\d+%\]", Color.violent))
 
 
+class Replacer:
+    def __init__(self, path, root, highlighter, config):
+        self.root = root
+        self.path = path
+        self.hl = highlighter
+        self.cfg = config
+
+    def __call__(self, line):
+        line = line.replace(self.path, self.root)
+        line = line.replace('/home', self.cfg.homeFolderName)
+        line = hl.highlight(line)
+        return line
+
+
+def printLines(line):
+    sys.stderr.write(line)
+    sys.stderr.flush()
+
+
 def make(make_targets, project, makefile_path = '', jobs = None):
     def getRealWorkspacePath(ws: Workspace):
         sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.root)], stdout=subprocess.PIPE)
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
 
+    def makeCommand(make_targets, project, makefile_path, jobs, path):
+        cd = 'cd {0}/{1}/{2}'.format(prj.path, project, makefile_path)
+        jobs = 'CORENUM=' + (jobs or '$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)')
+        make = 'make {0} -j$CORENUM 2>&1'.format(' '.join(make_targets))
+        return "{0} && {1} && {2}".format(cd, jobs, make)
+
+
     prj = getProjects()[project]
 
-    cd = 'cd {0}/{1}/{2}'.format(prj.path, project, makefile_path)
-    jobs = 'CORENUM=' + (jobs or '$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)')
-    make = 'make {0} -j$CORENUM 2>&1'.format(' '.join(make_targets))
-
-    command = "{0} && {1} && {2}".format(cd, jobs, make)
+    command = makeCommand(make_targets, project, makefile_path, jobs, prj.path)
 
     ws = getWorkspaces()[prj.workspace]
-    path = getRealWorkspacePath(ws)
-    cfg = Config()
+    repl = Replacer(getRealWorkspacePath(ws), ws.root, hl, Config())
+
     proc = subprocess.Popen(['ssh', ws.host, command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+    pipe = processor(repl, printLines)
     while True:
         line = proc.stdout.readline().decode("utf-8")
         if line == '':
             break
-
-        line = line.replace(path, ws.root)
-        line = line.replace('/home', cfg.homeFolderName)
-        line = hl.highlight(line)
-        sys.stderr.write(line)
-        sys.stderr.flush()
+        pipe.put(line)
+    pipe.closeAndWait()
 
 
 class Make(Endpoint):
