@@ -157,6 +157,13 @@ class Size:
             raise ValueError(m if not message else message)
         return True
 
+    @staticmethod
+    def bounds(arr, low, high, message = None):
+        if low <= len(arr) < high:
+            m = 'Неверный размер массива: ожидалось {0} < {1} < {2}'.format(low, len(arr), high)
+            raise ValueError(m if not message else message)
+        return True
+
 
 def emptyCommand(func):
     return [lambda p: func if Empty.delimers(p) and

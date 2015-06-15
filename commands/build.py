@@ -27,6 +27,7 @@ class Deploy(Endpoint):
         Exist.project(name)
         Send(self).execute([name])
         Make(self).execute(['all', 'install', '--', name])
+        Make(self).execute(['check', '--', name])
 
 
 class Run(Endpoint):
