@@ -2,7 +2,7 @@ from platform.endpoint import Endpoint
 from platform.params import Params
 from platform.utils import makeCommandDict
 from src import config
-from src.check_utils import Exist, Empty, Size, raiseWrongParsing
+from platform.check import Size, Empty, Has, raiseWrongParsing
 
 
 class Config(Endpoint):
@@ -20,7 +20,7 @@ class Config(Endpoint):
     def _rules(self):
         a = lambda p: self.showOptions if Empty.delimers(p) and \
                                           Empty.targets(p) and \
-                                          Exist.option(p, 'list') \
+                                          Has.option(p, 'list') \
                                        else raiseWrongParsing()
 
         b = lambda p: self.showOption if Empty.delimers(p) and \
@@ -35,7 +35,7 @@ class Config(Endpoint):
 
         d = lambda p: self.initConfig if Empty.delimers(p) and \
                                           Empty.targets(p) and \
-                                          Exist.option(p, 'init') \
+                                          Has.option(p, 'init') \
                                        else raiseWrongParsing()
 
         return [a, b, c, d]

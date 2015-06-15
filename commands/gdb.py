@@ -3,7 +3,6 @@ import sys
 from platform.endpoint import Endpoint
 from platform.params import Params
 from platform.utils import makeCommandDict
-from src.check_utils import singleOptionCommand, emptyCommand
 
 
 class Gdb(Endpoint):

@@ -4,7 +4,8 @@ from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.workspace import getWorkspaces
 from src.sync import SyncData, callSync
-from src.check_utils import Exist, Empty, NotEmpty, Check, Size, raiseWrongParsing
+from src.check_utils import Exist
+from platform.check import Size, Check, Empty, NotEmpty, Has, raiseWrongParsing
 from os.path import expanduser
 
 
@@ -32,7 +33,7 @@ class Get(Endpoint):
         w = lambda p: self.syncWorkspaces if Empty.delimers(p) and \
                                              NotEmpty.options(p) and \
                                              Check.optionNamesInSet(p, ['workspace', 'path', self.dry]) and \
-                                             Exist.option(p, 'workspace') and \
+                                             Has.option(p, 'workspace') and \
                                              Size.equals(p.targets, 1) \
                                           else raiseWrongParsing()
         return [p, w]

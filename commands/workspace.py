@@ -4,7 +4,8 @@ from platform.params import Params
 from platform.utils import makeCommandDict
 from src.workspace import getWorkspaces
 from src import workspace
-from src.check_utils import singleOptionCommand, emptyCommand, NotExist
+from src.check_utils import NotExist
+from platform.check import emptyCommand, singleOptionCommand
 
 
 class List(Endpoint):

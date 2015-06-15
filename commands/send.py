@@ -4,7 +4,8 @@ from platform.params import Params
 from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.sync import SyncData, callSync
-from src.check_utils import Exist, singleOptionCommand, Empty, Check, NotEmpty, raiseWrongParsing
+from src.check_utils import Exist
+from platform.check import Check, Empty, NotEmpty, raiseWrongParsing
 
 
 class Send(Endpoint):

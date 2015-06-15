@@ -9,7 +9,8 @@ from src.config import Config
 from src.workspace import Workspace, getWorkspaces
 from src.project import getProjects
 from commands.get import Get
-from src.check_utils import Exist, NotEmpty, Check, Size, raiseWrongParsing
+from src.check_utils import Exist
+from platform.check import Size, Check, NotEmpty, raiseWrongParsing
 import subprocess
 import sys
 

@@ -2,7 +2,8 @@ from platform.params import Params
 from platform.utils import makeCommandDict
 from platform.command import Command
 from platform.endpoint import Endpoint
-from src.check_utils import singleOptionCommand, Exist, NotExist, emptyCommand
+from src.check_utils import Exist, NotExist
+from platform.check import emptyCommand, singleOptionCommand
 from src.project import getProjects
 from src.utils import readLineWithPrompt, getProjectPathByName
 from os import remove
