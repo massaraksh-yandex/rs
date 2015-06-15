@@ -1,8 +1,7 @@
 import subprocess
 from os.path import join
 
-from platform.check import Check, NotEmpty, singleOptionCommand, raiseWrongParsing
-from platform.delimer import SingleDelimer
+from platform.check import singleOptionCommand, raiseWrongParsing
 from platform.endpoint import Endpoint
 from platform.command import Command
 from platform.utils import makeCommandDict
@@ -40,22 +39,50 @@ class Run(Endpoint):
                 '{space}--workspace - если параметр не указан, то берётся станрадтное рабочее окружение проекта']
 
     def _rules(self) -> []:
-        return [lambda p: self.run if Size.equals(p.targets, 2) and \
-                                      Check.optionNamesInSet(p, 'workspace') and \
-                                      NotEmpty.delimers(p) and \
-                                      Check.delimerType(p.delimer[0], SingleDelimer) \
-                                   else raiseWrongParsing()]
+        return [lambda p: self.run]
 
     def name(self) -> '':
         return 'run'
 
+    def _makeParams(self, argv):
+        p = Params.makeRawParams(argv)
+        if len(argv) == 0:
+            p._helpOptionIndex = 0
+        return p
+
+    def parseArgs(self, p: Params):
+        projectName = None
+        workspace = None
+        args = []
+
+        sep = p.argv.index('-')
+        if sep == 1:
+            projectName = p.argv[0]
+        elif sep == 2:
+            projectName = p.argv[0]
+            k, workspace = Params.parseOption(p.argv[1])
+            if k != 'workspace' or not workspace:
+                raiseWrongParsing()
+        else:
+            raiseWrongParsing()
+
+        pathToProgram = p.argv[sep+1]
+
+        if len(p.argv) > sep+2:
+            if p.argv[sep+2] != '-':
+                raiseWrongParsing()
+            args = p.argv[sep+3:]
+
+        Exist.project(projectName)
+        project = getProjects()[projectName]
+        ws = getWorkspaces()[ workspace if workspace else project.workspace ]
+
+        return (project, ws, pathToProgram, args)
+
     def run(self, p: Params):
-        Exist.project(p.targets[0])
-        project = getProjects()[p.targets[0]]
-        ws = getWorkspaces()[ p.options['workspace'] if 'workspace' in p.options else project.workspace ]
-        internalPath = p.targets[1]
-        name = join(ws.src, project.name, internalPath)
-        command = 'cd "$(dirname {name})" && ./"$(basename {name})"'.format(name=name)
+        project, ws, pathToProgram, args = self.parseArgs(p)
+        name = join(ws.src, project.name, pathToProgram)
+        command = 'cd "$(dirname {name})" && ./"$(basename {name})" {args}'.format(name=name, args=' '.join(args))
         subprocess.call(['ssh', ws.host, command])
 
 

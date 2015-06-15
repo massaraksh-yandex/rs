@@ -28,7 +28,7 @@ class Send(Endpoint):
     def _rules(self):
         p = lambda p: self.send if Empty.delimers(p) and \
                                    Check.optionNamesInSet(p, [self.dry]) and \
-                                    NotEmpty.targets(p) \
+                                   NotEmpty.targets(p) \
                                 else raiseWrongParsing()
 
         return [p]
