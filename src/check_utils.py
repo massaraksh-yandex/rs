@@ -1,5 +1,4 @@
-from platform.exception import WrongTargets, WrongOptions
-from platform.params import Params
+from platform.exception import WrongTargets
 from src.project import getProjects
 from src.workspace import getWorkspaces
 

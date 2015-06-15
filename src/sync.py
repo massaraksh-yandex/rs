@@ -1,5 +1,4 @@
 import subprocess
-from platform.params import Params
 from src.config import Config
 
 class SyncData:

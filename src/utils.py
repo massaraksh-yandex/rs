@@ -1,7 +1,5 @@
 from os.path import join, isfile
-from sys import stdout, stdin
 from src.config import Config
-
 from src.settings import Settings
 
 
