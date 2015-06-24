@@ -10,10 +10,6 @@ from os.path import expanduser
 
 
 class Get(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.dry = 'dry'
-
     def name(self):
         return 'get'
 
@@ -26,13 +22,13 @@ class Get(Endpoint):
 
     def _rules(self):
         p = lambda p: self.syncProjects if Empty.delimers(p) and \
-                                           Check.optionNamesInSet(p, [self.dry]) and \
+                                           Check.optionNamesInSet(p, ['dry']) and \
                                            NotEmpty.targets(p) \
                                         else raiseWrongParsing()
 
         w = lambda p: self.syncWorkspaces if Empty.delimers(p) and \
                                              NotEmpty.options(p) and \
-                                             Check.optionNamesInSet(p, ['workspace', 'path', self.dry]) and \
+                                             Check.optionNamesInSet(p, ['workspace', 'path', 'dry']) and \
                                              Has.option(p, 'workspace') and \
                                              Size.equals(p.targets, 1) \
                                           else raiseWrongParsing()
@@ -40,7 +36,7 @@ class Get(Endpoint):
 
     def _syncPath(self, sd: SyncData, p: Params):
         remote = '{0}:{1}/'.format(sd.host, sd.remotePath)
-        callSync(sd.excludeFile, remote, expanduser(sd.path), self.dry in p.options )
+        callSync(sd.excludeFile, remote, expanduser(sd.path), 'dry' in p.options )
 
     def syncProjects(self, p: Params):
         for arg in p.targets:

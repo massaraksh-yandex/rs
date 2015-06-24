@@ -1,4 +1,4 @@
-from os.path import join, isfile
+from os.path import join, isfile, expanduser
 from src.config import Config
 from src.settings import Settings
 
@@ -19,8 +19,8 @@ def getWorkspacePathByName(name):
 
 def getExcludeFileArg(path):
     cfg = Config()
-    path = path if isfile(join(path, cfg.excludeFileName)) else Settings().CONFIG_DIR
-    file = join(path, cfg.excludeFileName)
+    fileName = expanduser(join(path, cfg.excludeFileName))
+    file = fileName if isfile(fileName) else Settings().CONFIG_DIR
 
     return '--exclude-from={0}'.format(file)
 

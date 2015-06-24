@@ -5,6 +5,7 @@ from platform.check import singleOptionCommand, raiseWrongParsing
 from platform.endpoint import Endpoint
 from platform.command import Command
 from platform.utils import makeCommandDict
+from platform.params import Params
 from src.check_utils import *
 from commands.send import Send
 from commands.make import Make

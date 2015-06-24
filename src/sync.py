@@ -20,5 +20,5 @@ def callSync(exclude, src, dest, dryRun = False):
     args = ['rsync'] + cfg.argSync
     if dryRun:
         args.append('-n')
-    args = args + ['--cvs-exclude', exclude, src, dest]
+    args = args + [exclude, '--cvs-exclude',src, dest]
     subprocess.call(args)
