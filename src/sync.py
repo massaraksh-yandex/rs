@@ -10,7 +10,7 @@ class SyncData:
 
     def showSyncInfo(self):
         cfg = Config()
-        print('Path: {0}'.format(self.path))
+        print('Path: {0}'.format(self.remotePath))
         print('Host: {0}'.format(self.host))
         print('Options: {0} {1}'.format(' '.join(cfg.argSync), self.excludeFile))
 
@@ -20,5 +20,5 @@ def callSync(exclude, src, dest, dryRun = False):
     args = ['rsync'] + cfg.argSync
     if dryRun:
         args.append('-n')
-    args = args + [exclude, '--cvs-exclude',src, dest]
+    args = args + [exclude, '--cvs-exclude', src, dest]
     subprocess.call(args)

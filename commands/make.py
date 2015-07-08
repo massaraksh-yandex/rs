@@ -1,4 +1,5 @@
 from collections import namedtuple
+from os.path import join
 from platform.color import Color, Style, Highlighter, RR, CR
 from platform.exception import WrongTargets
 from platform.delimer import SingleDelimer, DoubleDelimer
@@ -28,14 +29,14 @@ def make(make_targets, project, makefile_path = '', jobs = None):
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
 
     prj = getProjects()[project]
+    ws = getWorkspaces()[prj.workspace]
 
-    cd = 'cd {0}/{1}/{2}'.format(prj.path, project, makefile_path)
+    cd = 'cd {0}/{1}/{2}'.format(ws.src, project, makefile_path)
     jobs = 'CORENUM=' + (jobs or '$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)')
     make = 'make {0} -j$CORENUM 2>&1'.format(' '.join(make_targets))
 
     command = "{0} && {1} && {2}".format(cd, jobs, make)
 
-    ws = getWorkspaces()[prj.workspace]
     path = getRealWorkspacePath(ws)
     cfg = Config()
     proc = subprocess.Popen(['ssh', ws.host, command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
@@ -44,7 +45,9 @@ def make(make_targets, project, makefile_path = '', jobs = None):
         if line == '':
             break
 
-        line = line.replace(path, ws.root)
+        line = line.replace(path, prj.path)
+        line = line.replace('src/src/', 'src/')
+        line = line.replace('/ht/', '/ws/')
         line = line.replace('/home', cfg.homeFolderName)
         line = hl.highlight(line)
         sys.stderr.write(line)

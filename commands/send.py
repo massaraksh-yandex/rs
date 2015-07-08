@@ -22,7 +22,7 @@ class Send(Endpoint):
                 '{space}--dry - показывает файлы, которые будут синхронизированы']
 
     def syncPath(self, sd: SyncData, p : Params):
-        remote = '{0}:{1}'.format(sd.host, sd.path)
+        remote = '{0}:{1}'.format(sd.host, sd.remotePath)
         callSync(sd.excludeFile, expanduser(sd.path)+'/', remote, self.dry in p.options)
 
     def _rules(self):

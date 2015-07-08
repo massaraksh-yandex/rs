@@ -20,7 +20,7 @@ def getWorkspacePathByName(name):
 def getExcludeFileArg(path):
     cfg = Config()
     fileName = expanduser(join(path, cfg.excludeFileName))
-    file = fileName if isfile(fileName) else Settings().CONFIG_DIR
+    file = fileName if isfile(fileName) else join(Settings().CONFIG_DIR, cfg.excludeFileName)
 
     return '--exclude-from={0}'.format(file)
 
