@@ -48,11 +48,12 @@ class Config(Endpoint):
 
     def setOption(self, p: Params):
         cfg = config.Config.instance
-        attr = p.targets[0]
+        attr = p.targets[0].value
+        value = p.targets[1].value
         if isinstance(getattr(cfg, attr), list):
-            setattr(cfg, p.targets[0], p.targets[1].split(','))
+            setattr(cfg, attr, value.split(','))
         else:
-            setattr(cfg, p.targets[0], p.targets[1])
+            setattr(cfg, attr, value)
         cfg.serialize()
 
     def initConfig(self, p: Params):

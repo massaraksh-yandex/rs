@@ -40,13 +40,14 @@ class Get(Endpoint):
 
     def syncProjects(self, p: Params):
         for arg in p.targets:
-            Exist.project(arg)
-            sd = getProjects()[arg].toSyncData()
+            name = arg.value
+            Exist.project(name)
+            sd = getProjects()[name].toSyncData()
             sd.showSyncInfo()
             self._syncPath(sd, p)
 
     def syncWorkspaces(self, p: Params):
-        wsName = p.targets[0]
+        wsName = p.targets[0].value
         Exist.workspace(wsName)
         ws = getWorkspaces()[wsName]
         path = ws.src

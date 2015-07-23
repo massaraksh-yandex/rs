@@ -38,7 +38,7 @@ class Show(Endpoint):
         return singleOptionCommand(self.process)
 
     def process(self, p: Params):
-        name = p.targets[0]
+        name = p.targets[0].value
         Exist.project(name)
         getProjects().get(name).print()
 
@@ -55,7 +55,7 @@ class Remove(Endpoint):
         return singleOptionCommand(self.process)
 
     def process(self, p: Params):
-        name = p.targets[0]
+        name = p.targets[0].value
         Exist.project(name)
         answer = readLineWithPrompt('Удалить проект {0}? (yes/no)'.format(name), 'no')
 
@@ -80,7 +80,7 @@ class Add(Endpoint):
         return singleOptionCommand(self.process)
 
     def process(self, p: Params):
-        name = p.targets[0]
+        name = p.targets[0].value
         NotExist.project(name)
         prj = project.Project.input(name)
         if prj is not None:

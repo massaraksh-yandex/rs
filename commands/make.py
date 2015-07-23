@@ -54,8 +54,6 @@ def make(make_targets, project, makefile_path = '', jobs = None):
 
 
 class Make(Endpoint):
-    Args = namedtuple('Args', ['makeTargets', 'projects'])
-
     def name(self):
         return 'make'
 
@@ -65,29 +63,20 @@ class Make(Endpoint):
                 '{path} цели - название_проекта папка_с_Makefile']
 
     def _rules(self):
-        singleMakefile = lambda p: self.makeMakefile if Size.equals(p.delimer, 1, 'Неверное число разделителей') and \
-                                                        Check.delimerType(p.delimer[0], SingleDelimer) and \
+        singleMakefile = lambda p: self.makeMakefile if Size.equals(p.delimers, 1, 'Неверное число разделителей') and \
+                                                        Check.delimerType(p.delimers[0], SingleDelimer) and \
                                                         Check.optionNamesInSet(p, 'jobs') and \
-                                                        NotEmpty.array(self._parse(p).makeTargets) and \
-                                                        Size.equals(self._parse(p).projects, 2) \
+                                                        NotEmpty.array(p.delimered[0]) and \
+                                                        Size.equals(p.delimered[1], 2) \
                                                      else raiseWrongParsing()
 
-        manyProjects = lambda p: self.makeProjects if Size.equals(p.delimer, 1, 'Неверное число разделителей') and \
-                                                      Check.delimerType(p.delimer[0], DoubleDelimer) and \
+        manyProjects = lambda p: self.makeProjects if Size.equals(p.delimers, 1, 'Неверное число разделителей') and \
+                                                      Check.delimerType(p.delimers[0], DoubleDelimer) and \
                                                       Check.optionNamesInSet(p, 'jobs') and \
-                                                      NotEmpty.array(self._parse(p).makeTargets) and \
-                                                      NotEmpty.array(self._parse(p).projects) \
+                                                      NotEmpty.array(p.delimered[0]) and \
+                                                      NotEmpty.array(p.delimered[1]) \
                                                    else raiseWrongParsing()
         return [singleMakefile, manyProjects]
-
-    def _parse(self, p: Params):
-        ind = p.delimer[0].index
-        if ind == 0:
-            raise WrongTargets('Отсутствуют цели Makefile: ' + str(p.argv))
-        if ind >= len(p.targets):
-            raise WrongTargets('Отсутствуют проекты для сборки: ' + str(p.argv))
-
-        return Make.Args(makeTargets=p.targets[:ind], projects=p.targets[ind:])
 
     def _syncIncludes(self, project):
         print('Синхронизирую заголовки...')
@@ -95,19 +84,24 @@ class Make(Endpoint):
         Get(self).execute([pr.workspace, '--workspace', '--path=include'])
 
     def makeProjects(self, p: Params):
-        args = self._parse(p)
-        for proj in args.projects:
-            Exist.project(proj)
-            print('Проект ' + proj)
-            make(args.makeTargets, proj, jobs=p.options['jobs'] if 'jobs' in p.options else None)
-            self._syncIncludes(proj)
+        makeTargets = [ x.value for x in p.delimered[0] ]
+        projects = p.delimered[1]
+        for proj in projects:
+            name = proj.value
+            Exist.project(name)
+            print('Проект ' + name)
+            make(makeTargets, name, jobs=p.options['jobs'])
+            self._syncIncludes(name)
 
     def makeMakefile(self, p: Params):
-        args = self._parse(p)
-        Exist.project(args.projects[0])
-        print('Проект ' + args.makeTargets[0]) # поправить вывод
-        make(args.makeTargets, args.projects[0], args.projects[1], jobs=p.options['jobs'] if 'jobs' in p.options else None)
-        self._syncIncludes(args.projects[0])
+        makeTargets = p.delimered[0]
+        targets = p.delimered[1]
+
+        name = targets.projects[0].value
+        Exist.project(name)
+        print('Проект ' + name)
+        make(makeTargets, name, targets[1].name, jobs=p.options['jobs'])
+        self._syncIncludes(name)
 
 
 module_commands = makeCommandDict(Make)

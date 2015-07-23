@@ -35,8 +35,9 @@ class Send(Endpoint):
 
     def send(self, p: Params):
         for arg in p.targets:
-            Exist.project(arg)
-            sd = getProjects()[arg].toSyncData()
+            name = arg.value
+            Exist.project(name)
+            sd = getProjects()[name].toSyncData()
             sd.showSyncInfo()
             self.syncPath(sd, p)
 
