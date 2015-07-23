@@ -9,14 +9,14 @@ class SyncData:
         self.excludeFile = exclude
 
     def showSyncInfo(self):
-        cfg = Config()
+        cfg = Config.instance
         print('Path: {0}'.format(self.remotePath))
         print('Host: {0}'.format(self.host))
         print('Options: {0} {1}'.format(' '.join(cfg.argSync), self.excludeFile))
 
 
 def callSync(exclude, src, dest, dryRun = False):
-    cfg = Config()
+    cfg = Config.instance
     args = ['rsync'] + cfg.argSync
     if dryRun:
         args.append('-n')

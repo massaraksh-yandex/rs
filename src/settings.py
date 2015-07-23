@@ -15,3 +15,26 @@ class Settings(settings.Settings):
     @property
     def WORKSPACES_DIR(self):
         return self._workspacesdir
+
+
+def validatefiles():
+    from os.path import isdir, isfile
+    s = Settings()
+    return isdir(s.CONFIG_DIR) and isdir(s.REMOTES_DIR) and \
+           isdir(s.WORKSPACES_DIR) and isfile(s.CONFIG_FILE)
+
+
+def createfiles():
+    from os import makedirs
+    from src.utils import readLineWithPrompt
+
+    answer = readLineWithPrompt('Создать конфиги в ~/.rs? [yes/no]', 'no')
+    if answer != 'yes':
+        exit()
+
+    s = Settings()
+    makedirs(s.CONFIG_DIR, exist_ok=True)
+    makedirs(s.REMOTES_DIR, exist_ok=True)
+    makedirs(s.WORKSPACES_DIR, exist_ok=True)
+    with open(s.CONFIG_FILE, 'w') as f:
+        f.write('{}')

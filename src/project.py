@@ -17,7 +17,7 @@ class Project:
     @staticmethod
     def input(name):
         map = {}
-        dw = Config().defaultWorkspace
+        dw = Config.instance.defaultWorkspace
         ws = getWorkspaces()[dw]
         map['path'] = readLineWithPrompt('Родительская папка', ws.src)
         map['project_type'] = readLineWithPrompt('Тип проекта', 'qtcreator_import')

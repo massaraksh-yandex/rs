@@ -18,7 +18,7 @@ def getWorkspacePathByName(name):
     return join(Settings().WORKSPACES_DIR, name + '.json')
 
 def getExcludeFileArg(path):
-    cfg = Config()
+    cfg = Config.instance
     fileName = expanduser(join(path, cfg.excludeFileName))
     file = fileName if isfile(fileName) else join(Settings().CONFIG_DIR, cfg.excludeFileName)
 

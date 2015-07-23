@@ -40,3 +40,15 @@ class Config(config.Config):
         map['excludeFileName'] = 'rsignore'
         map['argSync'] = ['-avcC', '--out-format=%f -- %b %o']
         return Config(map)
+
+def initconfig():
+    from src.utils import readLineWithPrompt
+    from src.workspace import Workspace
+    name = readLineWithPrompt('Имя стандартного размещения', 'workspace')
+    ws = Workspace.input(name)
+    if ws is not None:
+        ws.serialize()
+
+    cfg = Config.defaultConfig()
+    cfg.params['defaultWorkspace'] = name
+    cfg.serialize()

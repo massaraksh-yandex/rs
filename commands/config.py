@@ -41,13 +41,13 @@ class Config(Endpoint):
         return [a, b, c, d]
 
     def showOptions(self, p: Params):
-        print(config.Config())
+        print(config.Config.instance)
 
     def showOption(self, p: Params):
-        print(getattr(config.Config(), p.targets[0]))
+        print(getattr(config.Config.instance, p.targets[0]))
 
     def setOption(self, p: Params):
-        cfg = config.Config()
+        cfg = config.Config.instance
         attr = p.targets[0]
         if isinstance(getattr(cfg, attr), list):
             setattr(cfg, p.targets[0], p.targets[1].split(','))

@@ -1,5 +1,4 @@
 from collections import namedtuple
-from os.path import join
 from platform.color import Color, Style, Highlighter, RR, CR
 from platform.exception import WrongTargets
 from platform.delimer import SingleDelimer, DoubleDelimer
@@ -38,7 +37,7 @@ def make(make_targets, project, makefile_path = '', jobs = None):
     command = "{0} && {1} && {2}".format(cd, jobs, make)
 
     path = getRealWorkspacePath(ws)
-    cfg = Config()
+    cfg = Config.instance
     proc = subprocess.Popen(['ssh', ws.host, command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
     while True:
         line = proc.stdout.readline().decode("utf-8")
