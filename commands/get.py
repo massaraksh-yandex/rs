@@ -5,33 +5,33 @@ from src.project import getProjects
 from src.workspace import getWorkspaces
 from src.sync import SyncData, callSync
 from src.check_utils import Exist
-from platform.check import Size, Check, Empty, NotEmpty, Has, raiseWrongParsing
 from os.path import expanduser
+from platform.statement.statement import Rule, Statement
 
 
 class Get(Endpoint):
     def name(self):
         return 'get'
 
-    def _help(self):
-        return ['{path} - получает файлы с удалённого сервера',
-                '{path} --workspace [--path=src] [--dry] окружение - получает часть рабочего окружения',
-                '{space}--path Получает указанную папку из рабочего окружения',
-                '{path} [--dry] проект',
-                '{space}--dry - показывает файлы, которые будут синхронизированы']
+    def _info(self):
+        return ['{path} - получает файлы с удалённого сервера']
 
     def _rules(self):
-        p = lambda p: self.syncProjects if Empty.delimers(p) and \
-                                           Check.optionNamesInSet(p, ['dry']) and \
-                                           NotEmpty.targets(p) \
-                                        else raiseWrongParsing()
+        p = Statement(['{path} [--dry] проект',
+                       '{space}--dry - показывает файлы, которые будут синхронизированы'], self.syncProjects,
+                      lambda p: Rule(p).empty().delimers()
+                                       .check().optionNamesInSet(['dry'])
+                                       .notEmpty().targets())
 
-        w = lambda p: self.syncWorkspaces if Empty.delimers(p) and \
-                                             NotEmpty.options(p) and \
-                                             Check.optionNamesInSet(p, ['workspace', 'path', 'dry']) and \
-                                             Has.option(p, 'workspace') and \
-                                             Size.equals(p.targets, 1) \
-                                          else raiseWrongParsing()
+        w = Statement(['{path} --workspace [--path=src] [--dry] окружение - получает часть рабочего окружения',
+                       '{space}--path Получает указанную папку из рабочего окружения',
+                       '{space}--dry - показывает файлы, которые будут синхронизированы'], self.syncWorkspaces,
+                      lambda p: Rule(p).empty().delimers()
+                                       .notEmpty().options()
+                                       .check().optionNamesInSet(['workspace', 'path', 'dry'])
+                                       .has().option('workspace')
+                                       .size.equals(p.targets, 1))
+
         return [p, w]
 
     def _syncPath(self, sd: SyncData, p: Params):

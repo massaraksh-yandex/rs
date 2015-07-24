@@ -3,7 +3,7 @@ from platform.utils import makeCommandDict
 from platform.command import Command
 from platform.endpoint import Endpoint
 from src.check_utils import Exist, NotExist
-from platform.check import emptyCommand, singleOptionCommand
+from platform.statement.statement import emptyCommand, singleOptionCommand
 from src.project import getProjects
 from src.utils import readLineWithPrompt, getProjectPathByName
 from os import remove
@@ -14,12 +14,11 @@ class List(Endpoint):
     def name(self):
         return 'list'
 
-    def _help(self):
-        return ['{path} - показывает список проектов',
-                '{path}']
+    def _info(self):
+        return ['{path} - показывает список проектов']
 
     def _rules(self):
-        return emptyCommand(self.process)
+        return emptyCommand(['{path}'], self.process)
 
     def process(self, p: Params):
         for k, v in getProjects().items():
@@ -30,12 +29,11 @@ class Show(Endpoint):
     def name(self):
         return 'show'
 
-    def _help(self):
-        return ['{path} - показывает информацию о проекте',
-                '{path} название_проекта']
+    def _info(self):
+        return ['{path} - показывает информацию о проекте']
 
     def _rules(self):
-        return singleOptionCommand(self.process)
+        return singleOptionCommand(['{path} название_проекта'], self.process)
 
     def process(self, p: Params):
         name = p.targets[0].value
@@ -47,12 +45,11 @@ class Remove(Endpoint):
     def name(self):
         return 'rm'
 
-    def _help(self):
-        return ['{path} - удаляет запись о проекте',
-                '{path} название_проекта']
+    def _info(self):
+        return ['{path} - удаляет запись о проекте']
 
     def _rules(self):
-        return singleOptionCommand(self.process)
+        return singleOptionCommand(['{path} название_проекта'], self.process)
 
     def process(self, p: Params):
         name = p.targets[0].value
@@ -72,12 +69,11 @@ class Add(Endpoint):
     def name(self):
         return 'add'
 
-    def _help(self):
-        return ['{path} - создаёт запись о новом проекте',
-                '{path} название_проекта']
+    def _info(self):
+        return ['{path} - создаёт запись о новом проекте']
 
     def _rules(self):
-        return singleOptionCommand(self.process)
+        return singleOptionCommand(['{path} название_проекта'], self.process)
 
     def process(self, p: Params):
         name = p.targets[0].value
@@ -93,6 +89,9 @@ class Add(Endpoint):
 class Project(Command):
     def name(self):
         return 'project'
+
+    def _info(self):
+        return ['{path} - команды управления проектами']
 
     def _commands(self):
         return makeCommandDict(Add, List, Remove, Show)

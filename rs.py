@@ -3,7 +3,7 @@ from platform import utils
 from src.config import Config, initconfig
 from src.settings import validatefiles, createfiles
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     hooks = utils.ConfigHooks(check=validatefiles, init=createfiles,
                               save=initconfig, create=lambda: Config())
-    utils.main('rs', hooks)
+    utils.main('rs', ['{path} - программа для синхронизации кода и удалённой сборки'], hooks)

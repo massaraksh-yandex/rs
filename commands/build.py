@@ -1,4 +1,4 @@
-from platform.check import singleOptionCommand
+from platform.statement.statement import singleOptionCommand
 from platform.endpoint import Endpoint
 from platform.command import Command
 from platform.utils import makeCommandDict
@@ -9,14 +9,14 @@ from commands.make import Make
 
 
 class Deploy(Endpoint):
-    def _help(self) -> []:
-        return ['{path} - отсылает проект на сервер и компилирует его',
-                '{path} проект',
-                '{space}Для синхронизации используется команда send проект',
-                '{space}Для построения make all install -- проект']
+    def _info(self) -> []:
+        return ['{path} - отсылает проект на сервер и компилирует его']
 
     def _rules(self) -> []:
-        return singleOptionCommand(self.deploy)
+        return singleOptionCommand(['{path} проект',
+                                    '{space}Для синхронизации используется команда send проект',
+                                    '{space}Для построения make all install -- проект'],
+                                   self.deploy)
 
     def name(self) -> '':
         return 'deploy'
@@ -32,6 +32,9 @@ class Deploy(Endpoint):
 class Build(Command):
     def name(self) -> '':
         return 'build'
+
+    def _info(self):
+        return ['{path} - составные высокоуровневые команды для упрощения процесса разработки']
 
     def _commands(self) -> {}:
         return makeCommandDict(Deploy)

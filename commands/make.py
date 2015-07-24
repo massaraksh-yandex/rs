@@ -1,6 +1,4 @@
-from collections import namedtuple
 from platform.color import Color, Style, Highlighter, RR, CR
-from platform.exception import WrongTargets
 from platform.delimer import SingleDelimer, DoubleDelimer
 from platform.utils import makeCommandDict
 from platform.endpoint import Endpoint
@@ -10,10 +8,10 @@ from src.workspace import Workspace, getWorkspaces
 from src.project import getProjects
 from commands.get import Get
 from src.check_utils import Exist
-from platform.check import Size, Check, NotEmpty, raiseWrongParsing
 import subprocess
 import sys
 
+from platform.statement.statement import Statement, Rule
 
 hl = Highlighter(RR(r"\[with", '\n[\n with'), RR(r"\;", ';\n'),
                  CR(r"^[\/~][^\:]*", Color.cyan, Style.underline), CR(r"\serror\:", Color.red, Style.bold),
@@ -57,26 +55,26 @@ class Make(Endpoint):
     def name(self):
         return 'make'
 
-    def _help(self):
-        return ['{path} - вызывает Makefile на удалённой машине',
-                '{path} цели -- названия_проектов',
-                '{path} цели - название_проекта папка_с_Makefile']
+    def _info(self):
+        return ['{path} - вызывает Makefile на удалённой машине']
 
     def _rules(self):
-        singleMakefile = lambda p: self.makeMakefile if Size.equals(p.delimers, 1, 'Неверное число разделителей') and \
-                                                        Check.delimerType(p.delimers[0], SingleDelimer) and \
-                                                        Check.optionNamesInSet(p, 'jobs') and \
-                                                        NotEmpty.array(p.delimered[0]) and \
-                                                        Size.equals(p.delimered[1], 2) \
-                                                     else raiseWrongParsing()
 
-        manyProjects = lambda p: self.makeProjects if Size.equals(p.delimers, 1, 'Неверное число разделителей') and \
-                                                      Check.delimerType(p.delimers[0], DoubleDelimer) and \
-                                                      Check.optionNamesInSet(p, 'jobs') and \
-                                                      NotEmpty.array(p.delimered[0]) and \
-                                                      NotEmpty.array(p.delimered[1]) \
-                                                   else raiseWrongParsing()
-        return [singleMakefile, manyProjects]
+        sm = Statement(['{path} цели -- названия_проектов'], self.makeMakefile,
+                       lambda p: Rule(p).size().equals(p.delimers, 1)
+                                        .check().delimersType(SingleDelimer)
+                                        .check().optionNamesInSet('jobs')
+                                        .notEmpty().array(p.delimered[0])
+                                        .size().equals(p.delimered[1], 2))
+
+        mp = Statement(['{path} цели - название_проекта папка_с_Makefile'], self.makeProjects,
+                       lambda p: Rule(p).size().equals(p.delimers, 1)
+                                        .check().delimersType(DoubleDelimer)
+                                        .check().optionNamesInSet('jobs')
+                                        .notEmpty().array(p.delimered[0])
+                                        .notEmpty().equals(p.delimered[1]))
+
+        return [sm, mp]
 
     def _syncIncludes(self, project):
         print('Синхронизирую заголовки...')

@@ -2,41 +2,37 @@ from platform.endpoint import Endpoint
 from platform.params import Params
 from platform.utils import makeCommandDict
 from src import config
-from platform.check import Size, Empty, Has, raiseWrongParsing
+from platform.statement.statement import Statement, Rule
 
 
 class Config(Endpoint):
     def name(self):
         return 'config'
 
-    def _help(self):
-        return ['{path} - настройки опций программы',
-                '{path} --list - показывает текущие опции',
-                '{path} --init - возвращает конфигурационный файл к начальному состоянию',
-                '{path} опция - печатает значение опции',
-                '{path} опция значение - устанавливает новое значение для опции',
-                '{path} опция значение1,значение2 - устанавливает значение опции-массива']
+    def _info(self):
+        return ['{path} - настройки опций программы']
 
     def _rules(self):
-        a = lambda p: self.showOptions if Empty.delimers(p) and \
-                                          Empty.targets(p) and \
-                                          Has.option(p, 'list') \
-                                       else raiseWrongParsing()
+        a = Statement(['{path} --list - показывает текущие опции'], self.showOptions,
+                      lambda p: Rule(p).empty().delimers()
+                                       .empty().targets()
+                                       .has().option('list'))
 
-        b = lambda p: self.showOption if Empty.delimers(p) and \
-                                         Size.equals(p.targets, 1) and \
-                                         Empty.options(p) \
-                                      else raiseWrongParsing()
+        b = Statement(['{path} --init - возвращает конфигурационный файл к начальному состоянию'], self.initConfig,
+                      lambda p: Rule(p).empty().delimers()
+                                       .empty().targets()
+                                       .has().option('init'))
 
-        c = lambda p: self.setOption if Empty.delimers(p) and \
-                                        Size.equals(p.targets, 2) and \
-                                        Empty.options(p) \
-                                     else raiseWrongParsing()
+        c = Statement(['{path} опция - печатает значение опции'], self.showOption,
+                      lambda p: Rule(p).empty().delimers()
+                                       .size().equals(p.targets, 1)
+                                       .empty().options())
 
-        d = lambda p: self.initConfig if Empty.delimers(p) and \
-                                          Empty.targets(p) and \
-                                          Has.option(p, 'init') \
-                                       else raiseWrongParsing()
+        d = Statement(['{path} опция значение - устанавливает новое значение для опции',
+                       '{path} опция значение1,значение2 - устанавливает значение опции-массива'], self.setOption,
+                      lambda p: Rule(p).empty().delimers()
+                                       .size().equals(p.targets, 2)
+                                       .empty().options())
 
         return [a, b, c, d]
 
@@ -44,7 +40,7 @@ class Config(Endpoint):
         print(config.Config.instance)
 
     def showOption(self, p: Params):
-        print(getattr(config.Config.instance, p.targets[0]))
+        print(getattr(config.Config.instance, p.targets[0].value))
 
     def setOption(self, p: Params):
         cfg = config.Config.instance
@@ -53,6 +49,7 @@ class Config(Endpoint):
         if isinstance(getattr(cfg, attr), list):
             setattr(cfg, attr, value.split(','))
         else:
+            cfg._replace()
             setattr(cfg, attr, value)
         cfg.serialize()
 

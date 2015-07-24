@@ -5,33 +5,30 @@ from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.sync import SyncData, callSync
 from src.check_utils import Exist
-from platform.check import Check, Empty, NotEmpty, raiseWrongParsing
-
+from platform.statement.statement import Statement, Rule
 
 class Send(Endpoint):
     def __init__(self, parent):
         super().__init__(parent)
-        self.dry = 'dry'
 
     def name(self):
         return 'send'
 
-    def _help(self):
-        return ['{path} - отправляет файлы на удалённый сервер',
-                '{path} [--dry] название_проекта',
-                '{space}--dry - показывает файлы, которые будут синхронизированы']
+    def _info(self):
+        return ['{path} - отправляет файлы на удалённый сервер']
+
+    def _rules(self):
+        p = Statement(['{path} [--dry] название_проекта',
+                       '{space}--dry - показывает файлы, которые будут синхронизированы'], self.send,
+                      lambda p: Rule(p).empty().delimers()
+                                       .check().optionNamesInSet(['dry'])
+                                       .notEmpty().targets())
+
+        return [ p ]
 
     def syncPath(self, sd: SyncData, p : Params):
         remote = '{0}:{1}'.format(sd.host, sd.remotePath)
-        callSync(sd.excludeFile, expanduser(sd.path)+'/', remote, self.dry in p.options)
-
-    def _rules(self):
-        p = lambda p: self.send if Empty.delimers(p) and \
-                                   Check.optionNamesInSet(p, [self.dry]) and \
-                                   NotEmpty.targets(p) \
-                                else raiseWrongParsing()
-
-        return [p]
+        callSync(sd.excludeFile, expanduser(sd.path)+'/', remote, 'dry' in p.options)
 
     def send(self, p: Params):
         for arg in p.targets:
