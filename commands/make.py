@@ -1,11 +1,12 @@
 import subprocess
 import sys
 
-from platform.color import Color, Style, Highlighter, RR, CR
+from platform.color.color import Color, Style
+from platform.color.highlighter import Highlighter, RR, CR
 from platform.params.delimer import SingleDelimer, DoubleDelimer
-from platform.utils import makeCommandDict
+from platform.utils.utils import makeCommandDict
 from platform.commands.endpoint import Endpoint
-from platform.params import Params
+from platform.params.params import Params
 from src.config import Config
 from src.workspace import Workspace, getWorkspaces
 from src.project import getProjects

@@ -1,5 +1,4 @@
 from os.path import join
-
 from platform.db import settings
 
 

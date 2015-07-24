@@ -1,8 +1,7 @@
 from os.path import expanduser
-
 from platform.commands.endpoint import Endpoint
-from platform.params import Params
-from platform.utils import makeCommandDict
+from platform.params.params import Params
+from platform.utils.utils import makeCommandDict
 from src.project import getProjects
 from src.sync import SyncData, callSync
 from src.check_utils import Exist
