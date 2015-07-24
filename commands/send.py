@@ -1,11 +1,13 @@
 from os.path import expanduser
-from platform.endpoint import Endpoint
+
+from platform.commands.endpoint import Endpoint
 from platform.params import Params
 from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.sync import SyncData, callSync
 from src.check_utils import Exist
 from platform.statement.statement import Statement, Rule
+
 
 class Send(Endpoint):
     def __init__(self, parent):

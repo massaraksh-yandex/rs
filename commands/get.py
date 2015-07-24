@@ -1,11 +1,12 @@
-from platform.endpoint import Endpoint
+from os.path import expanduser
+
+from platform.commands.endpoint import Endpoint
 from platform.params import Params
 from platform.utils import makeCommandDict
 from src.project import getProjects
 from src.workspace import getWorkspaces
 from src.sync import SyncData, callSync
 from src.check_utils import Exist
-from os.path import expanduser
 from platform.statement.statement import Rule, Statement
 
 

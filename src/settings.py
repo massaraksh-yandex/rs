@@ -1,5 +1,6 @@
-from platform import settings
 from os.path import join
+
+from platform.db import settings
 
 
 class Settings(settings.Settings):

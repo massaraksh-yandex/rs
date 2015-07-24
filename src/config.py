@@ -1,4 +1,4 @@
-from platform import config
+from platform.db import config
 from src.settings import Settings
 
 class Config(config.Config):

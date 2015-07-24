@@ -1,16 +1,16 @@
+import subprocess
+import sys
+
 from platform.color import Color, Style, Highlighter, RR, CR
-from platform.delimer import SingleDelimer, DoubleDelimer
+from platform.params.delimer import SingleDelimer, DoubleDelimer
 from platform.utils import makeCommandDict
-from platform.endpoint import Endpoint
+from platform.commands.endpoint import Endpoint
 from platform.params import Params
 from src.config import Config
 from src.workspace import Workspace, getWorkspaces
 from src.project import getProjects
 from commands.get import Get
 from src.check_utils import Exist
-import subprocess
-import sys
-
 from platform.statement.statement import Statement, Rule
 
 hl = Highlighter(RR(r"\[with", '\n[\n with'), RR(r"\;", ';\n'),

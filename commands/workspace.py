@@ -1,5 +1,5 @@
-from platform.command import Command
-from platform.endpoint import Endpoint
+from platform.commands.command import Command
+from platform.commands.endpoint import Endpoint
 from platform.params import Params
 from platform.utils import makeCommandDict
 from src.workspace import getWorkspaces
