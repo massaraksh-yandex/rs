@@ -30,7 +30,7 @@ class Get(Endpoint):
                                        .notEmpty().options()
                                        .check().optionNamesInSet(['workspace', 'path', 'dry'])
                                        .has().option('workspace')
-                                       .size.equals(p.targets, 1))
+                                       .size().equals(p.targets, 1))
 
         return [p, w]
 

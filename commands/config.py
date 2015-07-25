@@ -37,13 +37,13 @@ class Config(Endpoint):
         return [a, b, c, d]
 
     def showOptions(self, p: Params):
-        print(config.Config.instance)
+        print(self.config)
 
     def showOption(self, p: Params):
-        print(getattr(config.Config.instance, p.targets[0].value))
+        print(getattr(self.config, p.targets[0].value))
 
     def setOption(self, p: Params):
-        cfg = config.Config.instance
+        cfg = self.config
         attr = p.targets[0].value
         value = p.targets[1].value
         if isinstance(getattr(cfg, attr), list):

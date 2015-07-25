@@ -24,9 +24,9 @@ class Deploy(Endpoint):
     def deploy(self, p: Params):
         name = p.targets[0].value
         Exist.project(name)
-        Send(self).execute([name])
-        Make(self).execute(['all', 'install', '--', name])
-        Make(self).execute(['check', '--', name])
+        self.subcmd(Send).execute([name])
+        self.subcmd(Make).execute(['all', 'install', '--', name])
+        self.subcmd(Make).execute(['check', '--', name])
 
 
 class Build(Command):

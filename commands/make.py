@@ -1,27 +1,25 @@
 import subprocess
 import sys
-
 from platform.color.color import Color, Style
 from platform.color.highlighter import Highlighter, RR, CR
 from platform.params.delimer import SingleDelimer, DoubleDelimer
 from platform.utils.utils import makeCommandDict
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
-from src.config import Config
 from src.workspace import Workspace, getWorkspaces
 from src.project import getProjects
 from commands.get import Get
 from src.check_utils import Exist
 from platform.statement.statement import Statement, Rule
 
-hl = Highlighter(RR(r"\[with", '\n[\n with'), RR(r"\;", ';\n'),
-                 CR(r"^[\/~][^\:]*", Color.cyan, Style.underline), CR(r"\serror\:", Color.red, Style.bold),
-                 CR(r"\sОшибка", Color.red, Style.bold), CR(r"\swarning\:", Color.yellow),
-                 RR(r",", ',', Color.green), RR(r"<", '<', Color.green),
-                 RR(r">", '>', Color.green), CR(r"\[\s*\d+%\]", Color.violent))
+hl = Highlighter(RR(r'\[with', '\n[\n with'), RR(r'\;', ';\n'),
+                 CR(r'^[\/~][^\:]*', Color.cyan, Style.underline), CR(r'\serror\:', Color.red, Style.bold),
+                 CR(r'\sОшибка', Color.red, Style.bold), CR(r'\swarning\:', Color.yellow),
+                 RR(r',', ',', Color.green), RR(r'<', '<', Color.green),
+                 RR(r'>', '>', Color.green), CR(r'\[\s*\d+%\]', Color.violent))
 
 
-def make(make_targets, project, makefile_path = '', jobs = None):
+def make(cfg, make_targets, project, makefile_path = '', jobs = None):
     def getRealWorkspacePath(ws: Workspace):
         sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.root)], stdout=subprocess.PIPE)
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
@@ -36,7 +34,6 @@ def make(make_targets, project, makefile_path = '', jobs = None):
     command = "{0} && {1} && {2}".format(cd, jobs, make)
 
     path = getRealWorkspacePath(ws)
-    cfg = Config.instance
     proc = subprocess.Popen(['ssh', ws.host, command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
     while True:
         line = proc.stdout.readline().decode("utf-8")
@@ -73,14 +70,14 @@ class Make(Endpoint):
                                         .check().delimersType(DoubleDelimer)
                                         .check().optionNamesInSet('jobs')
                                         .notEmpty().array(p.delimered[0])
-                                        .notEmpty().equals(p.delimered[1]))
+                                        .notEmpty().array(p.delimered[1]))
 
         return [sm, mp]
 
     def _syncIncludes(self, project):
         print('Синхронизирую заголовки...')
         pr = getProjects()[project]
-        Get(self).execute([pr.workspace, '--workspace', '--path=include'])
+        self.subcmd(Get).execute([pr.workspace, '--workspace', '--path=include'])
 
     def makeProjects(self, p: Params):
         makeTargets = [ x.value for x in p.delimered[0] ]
@@ -89,7 +86,7 @@ class Make(Endpoint):
             name = proj.value
             Exist.project(name)
             print('Проект ' + name)
-            make(makeTargets, name, jobs=p.options['jobs'])
+            make(self.config, makeTargets, name, jobs=p.options['jobs'])
             self._syncIncludes(name)
 
     def makeMakefile(self, p: Params):
@@ -99,7 +96,7 @@ class Make(Endpoint):
         name = targets.projects[0].value
         Exist.project(name)
         print('Проект ' + name)
-        make(makeTargets, name, targets[1].name, jobs=p.options['jobs'])
+        make(self.config, makeTargets, name, targets[1].name, jobs=p.options['jobs'])
         self._syncIncludes(name)
 
 
