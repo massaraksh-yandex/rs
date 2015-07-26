@@ -16,13 +16,11 @@ class Send(Endpoint):
         return ['{path} - отправляет файлы на удалённый сервер']
 
     def _rules(self):
-        p = Statement(['{path} [--dry] название_проекта',
-                       '{space}--dry - показывает файлы, которые будут синхронизированы'], self.send,
-                      lambda p: Rule(p).empty().delimers()
-                                       .check().optionNamesInSet(['dry'])
-                                       .notEmpty().targets())
-
-        return [ p ]
+        return Statement(['{path} [--dry] название_проекта',
+                          '{space}--dry - показывает файлы, которые будут синхронизированы'], self.send,
+                         lambda p: Rule(p).empty().delimers()
+                                          .check().optionNamesInSet(['dry'])
+                                          .notEmpty().targets())
 
     def syncPath(self, sd: SyncData, p : Params):
         remote = '{0}:{1}'.format(sd.host, sd.remotePath)
