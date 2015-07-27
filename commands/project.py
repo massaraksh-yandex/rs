@@ -1,13 +1,11 @@
-from os import remove
 from platform.params.params import Params
 from platform.utils.utils import makeCommandDict
 from platform.commands.command import Command
 from platform.commands.endpoint import Endpoint
-from src.check_utils import Exist, NotExist
 from platform.statement.statement import emptyCommand, singleOptionCommand
-from src.project import getProjects
-from src.utils import readLineWithPrompt, getProjectPathByName
-from src import project
+from src.check_utils import Exist, NotExist
+from src.project import inputProject
+from src.utils import readLineWithPrompt
 
 
 class List(Endpoint):
@@ -21,7 +19,7 @@ class List(Endpoint):
         return emptyCommand(['{path}'], self.process)
 
     def process(self, p: Params):
-        for k, v in getProjects().items():
+        for k, v in self.database.projects().items():
             print("project: " + k)
 
 
@@ -37,8 +35,8 @@ class Show(Endpoint):
 
     def process(self, p: Params):
         name = p.targets[0].value
-        Exist.project(name)
-        getProjects().get(name).print()
+        Exist(self.database).project(name)
+        print(self.database.projects()[name])
 
 
 class Remove(Endpoint):
@@ -53,15 +51,14 @@ class Remove(Endpoint):
 
     def process(self, p: Params):
         name = p.targets[0].value
-        Exist.project(name)
+        Exist(self.database).project(name)
         answer = readLineWithPrompt('Удалить проект {0}? (yes/no)'.format(name), 'no')
 
         if answer != 'yes':
             print('Отмена...')
             return
 
-        remove(getProjectPathByName(name))
-
+        self.database.remove(self.database.projects()[name])
         print('Проект {0} удалён'.format(name))
 
 
@@ -77,10 +74,10 @@ class Add(Endpoint):
 
     def process(self, p: Params):
         name = p.targets[0].value
-        NotExist.project(name)
-        prj = project.Project.input(name)
+        NotExist(self.database).project(name)
+        prj = inputProject(name, self.config, self.database)
         if prj is not None:
-            prj.serialize()
+            self.database.update(prj)
             print('Проект {0} добавлен'.format(prj.name))
         else:
             print('Отмена...')

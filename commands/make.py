@@ -6,8 +6,7 @@ from platform.params.delimer import SingleDelimer, DoubleDelimer
 from platform.utils.utils import makeCommandDict
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
-from src.workspace import Workspace, getWorkspaces
-from src.project import getProjects
+from src.workspace import Workspace
 from commands.get import Get
 from src.check_utils import Exist
 from platform.statement.statement import Statement, Rule
@@ -19,13 +18,13 @@ hl = Highlighter(RR(r'\[with', '\n[\n with'), RR(r'\;', ';\n'),
                  RR(r'>', '>', Color.green), CR(r'\[\s*\d+%\]', Color.violent))
 
 
-def make(cfg, make_targets, project, makefile_path = '', jobs = None):
+def make(cfg, repo, make_targets, project, makefile_path = '', jobs = None):
     def getRealWorkspacePath(ws: Workspace):
-        sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.root)], stdout=subprocess.PIPE)
+        sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.path)], stdout=subprocess.PIPE)
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
 
-    prj = getProjects()[project]
-    ws = getWorkspaces()[prj.workspace]
+    prj = repo.projects()[project]
+    ws = repo.workspaces()[prj.workspace]
 
     cd = 'cd {0}/{1}/{2}'.format(ws.src, project, makefile_path)
     jobs = 'CORENUM=' + (jobs or '$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)')
@@ -76,17 +75,16 @@ class Make(Endpoint):
 
     def _syncIncludes(self, project):
         print('Синхронизирую заголовки...')
-        pr = getProjects()[project]
+        pr = self.database.projects()[project]
         self.subcmd(Get).execute([pr.workspace, '--workspace', '--path=include'])
 
     def makeProjects(self, p: Params):
         makeTargets = [ x.value for x in p.delimered[0] ]
-        projects = p.delimered[1]
-        for proj in projects:
-            name = proj.value
-            Exist.project(name)
+        projects = [ x.value for x in p.delimered[1] ]
+        for name in projects:
+            Exist(self.database).project(name)
             print('Проект ' + name)
-            make(self.config, makeTargets, name, jobs=p.options['jobs'])
+            make(self.config, self.database, makeTargets, name, jobs=p.options['jobs'])
             self._syncIncludes(name)
 
     def makeMakefile(self, p: Params):
@@ -94,9 +92,9 @@ class Make(Endpoint):
         targets = p.delimered[1]
 
         name = targets.projects[0].value
-        Exist.project(name)
+        Exist(self.database).project(name)
         print('Проект ' + name)
-        make(self.config, makeTargets, name, targets[1].name, jobs=p.options['jobs'])
+        make(self.config, self.database, makeTargets, name, targets[1].name, jobs=p.options['jobs'])
         self._syncIncludes(name)
 
 

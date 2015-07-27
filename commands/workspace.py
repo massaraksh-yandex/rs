@@ -2,7 +2,6 @@ from platform.commands.command import Command
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import makeCommandDict
-from src.workspace import getWorkspaces
 from src import workspace
 from src.check_utils import NotExist
 from platform.statement.statement import emptyCommand, singleOptionCommand
@@ -18,7 +17,7 @@ class List(Endpoint):
         return emptyCommand(['{path}'], self.process)
 
     def process(self, p: Params):
-        for k, v in getWorkspaces().items():
+        for k, v in self.database.workspaces().items():
             print('workspace: ' + k)
 
 
@@ -33,11 +32,11 @@ class Add(Endpoint):
         return singleOptionCommand(['{path} рабочее_окружение'], self.process)
 
     def process(self, p: Params):
-        name = p.targets[0]
-        NotExist.workspace(name)
-        ws = workspace.Workspace.input(name)
+        name = p.targets[0].value
+        NotExist(self.database).workspace(name)
+        ws = workspace.inputWorkspace(name)
         if ws is not None:
-            ws.serialize()
+            self.database.update(ws)
             print('Рабочее окружение {0} добавлено'.format(ws.name))
         else:
             print('Отмена...')

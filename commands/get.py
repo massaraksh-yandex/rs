@@ -1,10 +1,7 @@
-from os.path import expanduser
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import makeCommandDict
-from src.project import getProjects
-from src.workspace import getWorkspaces
-from src.sync import SyncData, callSync
+from src.sync import Sync
 from src.check_utils import Exist
 from platform.statement.statement import Rule, Statement
 
@@ -34,29 +31,21 @@ class Get(Endpoint):
 
         return [p, w]
 
-    def _syncPath(self, sd: SyncData, p: Params):
-        remote = '{0}:{1}/'.format(sd.host, sd.remotePath)
-        callSync(sd.excludeFile, remote, expanduser(sd.path), 'dry' in p.options )
-
     def syncProjects(self, p: Params):
         for arg in p.targets:
             name = arg.value
-            Exist.project(name)
-            sd = getProjects()[name].toSyncData()
-            sd.showSyncInfo()
-            self._syncPath(sd, p)
+            Exist(self.database).project(name)
+            project = self.database.projects()[name]
+            Sync(self.database, self.config, project, dry='dry' in p.options).print().get()
 
     def syncWorkspaces(self, p: Params):
         wsName = p.targets[0].value
-        Exist.workspace(wsName)
-        ws = getWorkspaces()[wsName]
-        path = ws.src
+        Exist(self.database).workspace(wsName)
+        ws = self.database.workspaces()[wsName]
         if 'path' in p.options:
-            path = getattr(ws, p.options['path'], ws.src)
-        sd = ws.toSyncData(path)
-
-        sd.showSyncInfo()
-        self._syncPath(sd, p)
+            ws.name = p.options['path']
+        ws.src = ws.path
+        Sync(self.database, self.config, ws, dry='dry' in p.options).print().get()
 
 
 module_commands = makeCommandDict(Get)

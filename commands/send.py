@@ -1,9 +1,7 @@
-from os.path import expanduser
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import makeCommandDict
-from src.project import getProjects
-from src.sync import SyncData, callSync
+from src.sync import Sync
 from src.check_utils import Exist
 from platform.statement.statement import Statement, Rule
 
@@ -16,23 +14,17 @@ class Send(Endpoint):
         return ['{path} - отправляет файлы на удалённый сервер']
 
     def _rules(self):
-        return Statement(['{path} [--dry] название_проекта',
-                          '{space}--dry - показывает файлы, которые будут синхронизированы'], self.send,
-                         lambda p: Rule(p).empty().delimers()
-                                          .check().optionNamesInSet(['dry'])
-                                          .notEmpty().targets())
-
-    def syncPath(self, sd: SyncData, p : Params):
-        remote = '{0}:{1}'.format(sd.host, sd.remotePath)
-        callSync(sd.excludeFile, expanduser(sd.path)+'/', remote, 'dry' in p.options)
+        return [Statement(['{path} [--dry] название_проекта',
+                           '{space}--dry - показывает файлы, которые будут синхронизированы'], self.send,
+                          lambda p: Rule(p).empty().delimers()
+                                           .check().optionNamesInSet(['dry'])
+                                           .notEmpty().targets())]
 
     def send(self, p: Params):
         for arg in p.targets:
             name = arg.value
-            Exist.project(name)
-            sd = getProjects()[name].toSyncData()
-            sd.showSyncInfo()
-            self.syncPath(sd, p)
-
+            Exist(self.database).project(name)
+            project = self.database.projects()[name]
+            Sync(self.database, self.config, project, dry='dry' in p.options).print().send()
 
 module_commands = makeCommandDict(Send)

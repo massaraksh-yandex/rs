@@ -1,4 +1,5 @@
 from platform.db import config
+from src.database import Database
 from src.settings import Settings
 
 class Config(config.Config):
@@ -43,12 +44,15 @@ class Config(config.Config):
 
 def initconfig():
     from src.utils import readLineWithPrompt
-    from src.workspace import Workspace
+    from src.workspace import inputWorkspace
     name = readLineWithPrompt('Имя стандартного размещения', 'workspace')
-    ws = Workspace.input(name)
-    if ws is not None:
-        ws.serialize()
+    ws = inputWorkspace(name)
+    if ws is None:
+        print('Не могу продолжать без рабочего окружения')
+        exit()
 
     cfg = Config.defaultConfig()
     cfg.params['defaultWorkspace'] = name
     cfg.serialize()
+
+    Database(cfg).update(ws)
