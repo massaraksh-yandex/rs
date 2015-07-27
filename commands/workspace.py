@@ -3,7 +3,7 @@ from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import makeCommandDict
 from src import workspace
-from src.check_utils import NotExist
+from src.check import NotExist
 from platform.statement.statement import emptyCommand, singleOptionCommand
 
 class List(Endpoint):

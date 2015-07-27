@@ -3,7 +3,7 @@ from platform.utils.utils import makeCommandDict, readLineWithPrompt
 from platform.commands.command import Command
 from platform.commands.endpoint import Endpoint
 from platform.statement.statement import emptyCommand, singleOptionCommand
-from src.check_utils import Exist, NotExist
+from src.check import Exist, NotExist
 from src.project import inputProject
 
 
