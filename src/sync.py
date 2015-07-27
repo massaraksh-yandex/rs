@@ -21,8 +21,9 @@ class ScpSync(object):
 
 
 class Sync(object):
-    def __init__(self, database: Database, config: Config, object, dry = False):
+    def __init__(self, database: Database, object, dry = False):
         ws = database.workspaces()[object.workspace] if isinstance(object, Project) else object
+        config = database.config
 
         self.dry = dry
         self.path = join(object.path, object.name)

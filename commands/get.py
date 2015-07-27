@@ -38,18 +38,18 @@ class Get(Endpoint):
             name = arg.value
             Exist(self.database).project(name)
             project = projects[name]
-            Sync(self.database, self.config, project, dry='dry' in p.options).print().get()
+            Sync(self.database, project, dry='dry' in p.options).print().get()
 
     def syncWorkspaces(self, p: Params):
         wsName = p.targets[0].value
         Exist(self.database).workspace(wsName)
-        ws = self.database.select(wsName, Workspace)[wsName]
+        ws = self.database.selectone(wsName, Workspace)
 
         ws.src = ws.path
         if 'path' in p.options:
             ws.name = p.options['path']
 
-        Sync(self.database, self.config, ws, dry='dry' in p.options).print().get()
+        Sync(self.database, ws, dry='dry' in p.options).print().get()
 
 
 module_commands = makeCommandDict(Get)

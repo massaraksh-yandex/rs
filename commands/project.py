@@ -33,9 +33,11 @@ class Show(Endpoint):
         return singleOptionCommand(['{path} название_проекта'], self.process)
 
     def process(self, p: Params):
+        import src
         name = p.targets[0].value
         Exist(self.database).project(name)
-        print(self.database.select(name, Project))
+        prj = self.database.selectone(name, src.project.Project)
+        print(prj)
 
 
 class Remove(Endpoint):
@@ -49,6 +51,7 @@ class Remove(Endpoint):
         return singleOptionCommand(['{path} название_проекта'], self.process)
 
     def process(self, p: Params):
+        import src
         name = p.targets[0].value
         Exist(self.database).project(name)
         answer = readLineWithPrompt('Удалить проект {0}? (yes/no)'.format(name), 'no')
@@ -57,7 +60,8 @@ class Remove(Endpoint):
             print('Отмена...')
             return
 
-        self.database.remove(self.database.select(name, Project))
+        prj = self.database.selectone(name, src.project.Project)
+        self.database.remove(prj)
         print('Проект {0} удалён'.format(name))
 
 
@@ -74,7 +78,7 @@ class Add(Endpoint):
     def process(self, p: Params):
         name = p.targets[0].value
         NotExist(self.database).project(name)
-        prj = inputProject(name, self.config, self.database)
+        prj = inputProject(name, self.database)
         if prj is not None:
             self.database.update(prj)
             print('Проект {0} добавлен'.format(prj.name))

@@ -25,6 +25,6 @@ class Send(Endpoint):
             name = arg.value
             Exist(self.database).project(name)
             project = self.database.projects()[name]
-            Sync(self.database, self.config, project, dry='dry' in p.options).print().send()
+            Sync(self.database, project, dry='dry' in p.options).print().send()
 
 module_commands = makeCommandDict(Send)

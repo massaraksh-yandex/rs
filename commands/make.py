@@ -33,13 +33,13 @@ class Make(object):
     def make(self, name, path):
         pass
 
-def make(cfg, repo, make_targets, project, makefile_path = '', jobs = None):
+def make(db, make_targets, project, makefile_path = '', jobs = None):
     def getRealWorkspacePath(ws: Workspace):
         sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.path)], stdout=subprocess.PIPE)
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
 
-    prj = repo.select(project, Project)[project]
-    ws = repo.select(prj.workspace, Workspace)[prj.workspace]
+    prj = db.selectone(project, Project)
+    ws = db.selectone(prj.workspace, Workspace)
 
     cd = 'cd {0}/{1}/{2}'.format(ws.src, project, makefile_path)
     jobs = 'CORENUM=' + (jobs or '$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)')
@@ -57,7 +57,7 @@ def make(cfg, repo, make_targets, project, makefile_path = '', jobs = None):
         line = line.replace(path, prj.path)
         line = line.replace('src/src/', 'src/')
         line = line.replace('/ht/', '/ws/')
-        line = line.replace('/home', cfg.homeFolderName)
+        line = line.replace('/home', db.config.homeFolderName)
         line = hl.highlight(line)
         sys.stderr.write(line)
         sys.stderr.flush()
@@ -99,7 +99,7 @@ class Make(Endpoint):
         for name in projects:
             Exist(self.database).project(name)
             print('Проект ' + name)
-            make(self.config, self.database, makeTargets, name, jobs=p.options['jobs'])
+            make(self.database, makeTargets, name, jobs=p.options['jobs'])
             self._syncIncludes(name)
 
     def makeMakefile(self, p: Params):
@@ -109,7 +109,7 @@ class Make(Endpoint):
         name = targets.projects[0].value
         Exist(self.database).project(name)
         print('Проект ' + name)
-        make(self.config, self.database, makeTargets, name, targets[1].name, jobs=p.options['jobs'])
+        make(self.database, makeTargets, name, targets[1].name, jobs=p.options['jobs'])
         self._syncIncludes(name)
 
 

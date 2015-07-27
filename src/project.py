@@ -19,8 +19,8 @@ class Project:
             .format(**self.__dict__)
 
 
-def inputProject(name, config, database):
-    dw = config.defaultWorkspace
+def inputProject(name, database):
+    dw = database.config.defaultWorkspace
     ws = database.workspaces()[dw]
     path = readLineWithPrompt('Родительская папка', ws.src)
     workspace = readLineWithPrompt('Рабочее окружение', dw)

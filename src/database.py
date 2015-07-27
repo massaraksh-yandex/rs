@@ -1,14 +1,21 @@
 from platform.db import database
+from src.config import Config
+from src.settings import Settings
 from src.workspace import Workspace
 from src.project import Project
 
 
 class Database(database.Database):
+    def __init__(self, config = Config()):
+        super().__init__(config, Settings())
+
     def _getDirByType(self, type):
         if type == Project:
-            return self._settings.REMOTES_DIR
+            return self.settings.REMOTES_DIR
         elif type == Workspace:
-            return self._settings.WORKSPACES_DIR
+            return self.settings.WORKSPACES_DIR
+        elif type == Config:
+            return self.settings.CONFIG_DIR
         else:
             raise Exception('Неизвестный тип')
 
@@ -17,3 +24,21 @@ class Database(database.Database):
 
     def workspaces(self):
         return self.select('*', Workspace)
+
+
+def initconfig():
+    from platform.utils.utils import readLineWithPrompt
+    from src.workspace import inputWorkspace
+    name = readLineWithPrompt('Имя стандартного размещения', 'workspace')
+    ws = inputWorkspace(name)
+    if ws is None:
+        print('Не могу продолжать без рабочего окружения')
+        exit()
+
+    map = {'defaultWorkspace': name,
+           'homeFolderName': '/home',
+           'excludeFileName': 'rsignore',
+           'argSync': ['-avcC', '--out-format=%f -- %b %o']}
+
+    db = Database(Config(map))
+    db.update(db.config)

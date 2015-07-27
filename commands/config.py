@@ -1,8 +1,8 @@
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import makeCommandDict
-from src import config
 from platform.statement.statement import Statement, Rule
+from src.database import initconfig
 
 
 class Config(Endpoint):
@@ -37,24 +37,23 @@ class Config(Endpoint):
         return [a, b, c, d]
 
     def showOptions(self, p: Params):
-        print(self.config)
+        print(self.database.config)
 
     def showOption(self, p: Params):
-        print(getattr(self.config, p.targets[0].value))
+        print(getattr(self.database.config, p.targets[0].value))
 
     def setOption(self, p: Params):
-        cfg = self.config
+        cfg = self.database.config
         attr = p.targets[0].value
         value = p.targets[1].value
         if isinstance(getattr(cfg, attr), list):
-            setattr(cfg, attr, value.split(','))
+            cfg.params[attr] = value.split(',')
         else:
-            cfg._replace()
-            setattr(cfg, attr, value)
-        cfg.serialize()
+            cfg.params[attr] = value
+        self.database.update(cfg)
 
     def initConfig(self, p: Params):
-        config.Config.defaultConfig().serialize()
+        initconfig()
 
 
 module_commands = makeCommandDict(Config)
