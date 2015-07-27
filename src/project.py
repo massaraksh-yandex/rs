@@ -1,4 +1,4 @@
-from src.utils import readLineWithPrompt
+from platform.utils.utils import readLineWithPrompt
 import json
 
 class Project:

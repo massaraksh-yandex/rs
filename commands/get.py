@@ -4,6 +4,7 @@ from platform.utils.utils import makeCommandDict
 from src.sync import Sync
 from src.check_utils import Exist
 from platform.statement.statement import Rule, Statement
+from src.workspace import Workspace
 
 
 class Get(Endpoint):
@@ -32,19 +33,22 @@ class Get(Endpoint):
         return [p, w]
 
     def syncProjects(self, p: Params):
+        projects = self.database.projects()
         for arg in p.targets:
             name = arg.value
             Exist(self.database).project(name)
-            project = self.database.projects()[name]
+            project = projects[name]
             Sync(self.database, self.config, project, dry='dry' in p.options).print().get()
 
     def syncWorkspaces(self, p: Params):
         wsName = p.targets[0].value
         Exist(self.database).workspace(wsName)
-        ws = self.database.workspaces()[wsName]
+        ws = self.database.select(wsName, Workspace)[wsName]
+
+        ws.src = ws.path
         if 'path' in p.options:
             ws.name = p.options['path']
-        ws.src = ws.path
+
         Sync(self.database, self.config, ws, dry='dry' in p.options).print().get()
 
 

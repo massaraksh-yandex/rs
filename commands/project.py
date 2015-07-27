@@ -1,11 +1,10 @@
 from platform.params.params import Params
-from platform.utils.utils import makeCommandDict
+from platform.utils.utils import makeCommandDict, readLineWithPrompt
 from platform.commands.command import Command
 from platform.commands.endpoint import Endpoint
 from platform.statement.statement import emptyCommand, singleOptionCommand
 from src.check_utils import Exist, NotExist
 from src.project import inputProject
-from src.utils import readLineWithPrompt
 
 
 class List(Endpoint):
@@ -36,7 +35,7 @@ class Show(Endpoint):
     def process(self, p: Params):
         name = p.targets[0].value
         Exist(self.database).project(name)
-        print(self.database.projects()[name])
+        print(self.database.select(name, Project))
 
 
 class Remove(Endpoint):
@@ -58,7 +57,7 @@ class Remove(Endpoint):
             print('Отмена...')
             return
 
-        self.database.remove(self.database.projects()[name])
+        self.database.remove(self.database.select(name, Project))
         print('Проект {0} удалён'.format(name))
 
 

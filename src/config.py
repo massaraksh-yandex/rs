@@ -43,7 +43,7 @@ class Config(config.Config):
         return Config(map)
 
 def initconfig():
-    from src.utils import readLineWithPrompt
+    from platform.utils.utils import readLineWithPrompt
     from src.workspace import inputWorkspace
     name = readLineWithPrompt('Имя стандартного размещения', 'workspace')
     ws = inputWorkspace(name)

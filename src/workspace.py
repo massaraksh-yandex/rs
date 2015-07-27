@@ -1,6 +1,7 @@
 from os.path import join
-from src.utils import readLineWithPrompt
+from platform.utils.utils import readLineWithPrompt
 import json
+
 
 class Workspace:
     def __init__(self, name, host, path, include, src, etc):

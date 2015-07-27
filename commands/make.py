@@ -6,6 +6,7 @@ from platform.params.delimer import SingleDelimer, DoubleDelimer
 from platform.utils.utils import makeCommandDict
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
+from src.project import Project
 from src.workspace import Workspace
 from commands.get import Get
 from src.check_utils import Exist
@@ -18,13 +19,27 @@ hl = Highlighter(RR(r'\[with', '\n[\n with'), RR(r'\;', ';\n'),
                  RR(r'>', '>', Color.green), CR(r'\[\s*\d+%\]', Color.violent))
 
 
+class Make(object):
+    def __init__(self, cfg, repo, makeTargets, jobs):
+        self.makeTargets = makeTargets
+        self.jobs = jobs
+        self.repo = repo
+        self.cfg = cfg
+
+    def _getRealWorkspacePath(self, ws: Workspace):
+        sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.path)], stdout=subprocess.PIPE)
+        return sp.stdout.readlines()[0].decode("utf-8").rstrip()
+
+    def make(self, name, path):
+        pass
+
 def make(cfg, repo, make_targets, project, makefile_path = '', jobs = None):
     def getRealWorkspacePath(ws: Workspace):
         sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.path)], stdout=subprocess.PIPE)
         return sp.stdout.readlines()[0].decode("utf-8").rstrip()
 
-    prj = repo.projects()[project]
-    ws = repo.workspaces()[prj.workspace]
+    prj = repo.select(project, Project)[project]
+    ws = repo.select(prj.workspace, Workspace)[prj.workspace]
 
     cd = 'cd {0}/{1}/{2}'.format(ws.src, project, makefile_path)
     jobs = 'CORENUM=' + (jobs or '$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)')

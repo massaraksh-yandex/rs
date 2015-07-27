@@ -1,4 +1,4 @@
-from genericpath import isfile
+from os.path import isfile
 import subprocess
 from src.config import Config
 from src.database import Database
@@ -8,18 +8,15 @@ from os.path import join, expanduser
 
 class ScpSync(object):
     def __init__(self, args, exclude, dry):
-        self._options = ['rsync'] + args
+        self._options = ['rsync'] + ['--cvs-exclude', '--exclude-from='+exclude] + args
         if dry:
             self._options.append('-n')
-        self._options += ['--exclude-from='+exclude, '--cvs-exclude']
 
 
     def options(self):
         return self._options
 
     def sync(self, source, destination):
-        d = self._options + [source+'/', destination]
-        print(' '.join(d))
         subprocess.call(self._options + [source+'/', destination])
 
 

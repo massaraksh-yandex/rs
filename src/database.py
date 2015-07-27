@@ -4,16 +4,16 @@ from src.project import Project
 
 
 class Database(database.Database):
-    def _getDirByType(self, object):
-        if isinstance(object, Project):
+    def _getDirByType(self, type):
+        if type == Project:
             return self._settings.REMOTES_DIR
-        elif isinstance(object, Workspace):
+        elif type == Workspace:
             return self._settings.WORKSPACES_DIR
         else:
             raise Exception('Неизвестный тип')
 
     def projects(self):
-        return self._selectAll(self._settings.REMOTES_DIR, Project)
+        return self.select('*', Project)
 
     def workspaces(self):
-        return self._selectAll(self._settings.WORKSPACES_DIR, Workspace)
+        return self.select('*', Workspace)
