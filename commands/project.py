@@ -3,8 +3,8 @@ from platform.utils.utils import makeCommandDict, readLineWithPrompt
 from platform.commands.command import Command
 from platform.commands.endpoint import Endpoint
 from platform.statement.statement import emptyCommand, singleOptionCommand
-from src.check import Exist, NotExist
-from src.project import inputProject
+from src.utils.check import Exist, NotExist
+from src.db.project import inputProject
 
 
 class List(Endpoint):
@@ -36,7 +36,7 @@ class Show(Endpoint):
         import src
         name = p.targets[0].value
         Exist(self.database).project(name)
-        prj = self.database.selectone(name, src.project.Project)
+        prj = self.database.selectone(name, src.db.project.Project)
         print(prj)
 
 
@@ -60,7 +60,7 @@ class Remove(Endpoint):
             print('Отмена...')
             return
 
-        prj = self.database.selectone(name, src.project.Project)
+        prj = self.database.selectone(name, src.db.project.Project)
         self.database.remove(prj)
         print('Проект {0} удалён'.format(name))
 

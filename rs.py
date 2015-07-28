@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3.4 -u
 from platform.utils.main import main, ConfigHooks
-from src.database import Database, initconfig
-from src.settings import validatefiles, createfiles
+from src.db.database import Database, initconfig
+from src.db.settings import validatefiles, createfiles
 
 if __name__ == '__main__':
     hooks = ConfigHooks(checkfiles=validatefiles, createfiles=createfiles,

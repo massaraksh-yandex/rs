@@ -1,10 +1,10 @@
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import makeCommandDict
-from src.sync import Sync
-from src.check import Exist
+from src.sync.sync import Sync
+from src.utils.check import Exist
 from platform.statement.statement import Rule, Statement
-from src.workspace import Workspace
+from src.db.workspace import Workspace
 
 
 class Get(Endpoint):

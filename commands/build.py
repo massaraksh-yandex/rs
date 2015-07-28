@@ -3,7 +3,7 @@ from platform.commands.endpoint import Endpoint
 from platform.commands.command import Command
 from platform.utils.utils import makeCommandDict
 from platform.params.params import Params
-from src.check import *
+from src.utils.check import *
 from commands.send import Send
 from commands.make import Make
 

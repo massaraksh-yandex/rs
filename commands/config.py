@@ -2,7 +2,7 @@ from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import makeCommandDict
 from platform.statement.statement import Statement, Rule
-from src.database import initconfig
+from src.db.database import initconfig
 
 
 class Config(Endpoint):

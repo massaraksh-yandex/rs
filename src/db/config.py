@@ -1,5 +1,5 @@
 from platform.db import config
-from src.settings import Settings
+from src.db.settings import Settings
 
 class Config(config.Config):
     def __init__(self, m = None):

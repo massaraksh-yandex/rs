@@ -2,8 +2,8 @@ import subprocess
 import sys
 from platform.color.color import Color, Style
 from platform.color.highlighter import Highlighter, RR, CR
-from src.project import Project
-from src.workspace import Workspace
+from src.db.project import Project
+from src.db.workspace import Workspace
 
 
 class Maker(object):

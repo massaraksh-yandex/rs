@@ -1,23 +1,9 @@
 from os.path import isfile
-import subprocess
-from src.config import Config
-from src.database import Database
-from src.project import Project
 from os.path import join, expanduser
-
-
-class ScpSync(object):
-    def __init__(self, args, exclude, dry):
-        self._options = ['rsync'] + ['--cvs-exclude', '--exclude-from='+exclude] + args
-        if dry:
-            self._options.append('-n')
-
-
-    def options(self):
-        return self._options
-
-    def sync(self, source, destination):
-        subprocess.call(self._options + [source+'/', destination])
+from src.db.config import Config
+from src.db.database import Database
+from src.db.project import Project
+from src.sync.rsyncscp import RsyncSync
 
 
 class Sync(object):
@@ -29,7 +15,7 @@ class Sync(object):
         self.path = join(object.path, object.name)
         self.remotePath = ws.host + ':' + join(ws.src, object.name)
         self.exclude = self._getExcludeFile(object.path, config)
-        self.backend = ScpSync(config.argSync, self.exclude, self.dry)
+        self.backend = RsyncSync(config.argSync, self.exclude, self.dry)
         self.options = self.backend.options()
 
     def _getExcludeFile(self, path, cfg: Config):

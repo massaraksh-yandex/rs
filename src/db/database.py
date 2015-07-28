@@ -1,8 +1,8 @@
 from platform.db import database
-from src.config import Config
-from src.settings import Settings
-from src.workspace import Workspace
-from src.project import Project
+from src.db.config import Config
+from src.db.settings import Settings
+from src.db.workspace import Workspace
+from src.db.project import Project
 
 
 class Database(database.Database):
@@ -28,7 +28,7 @@ class Database(database.Database):
 
 def initconfig():
     from platform.utils.utils import readLineWithPrompt
-    from src.workspace import inputWorkspace
+    from src.db.workspace import inputWorkspace
     name = readLineWithPrompt('Имя стандартного размещения', 'workspace')
     ws = inputWorkspace(name)
     if ws is None:

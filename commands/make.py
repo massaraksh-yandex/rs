@@ -2,9 +2,9 @@ from platform.params.delimer import SingleDelimer, DoubleDelimer
 from platform.utils.utils import makeCommandDict
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
-from src.maker import Maker
+from src.utils.maker import Maker
 from commands.get import Get
-from src.check import Exist
+from src.utils.check import Exist
 from platform.statement.statement import Statement, Rule
 
 
