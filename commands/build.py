@@ -1,7 +1,7 @@
 from platform.statement.statement import singleOptionCommand
 from platform.commands.endpoint import Endpoint
 from platform.commands.command import Command
-from platform.utils.utils import makeCommandDict
+from platform.utils.utils import registerCommands
 from platform.params.params import Params
 from src.utils.check import *
 from commands.send import Send
@@ -37,7 +37,7 @@ class Build(Command):
         return ['{path} - составные высокоуровневые команды для упрощения процесса разработки']
 
     def _commands(self) -> {}:
-        return makeCommandDict(Deploy)
+        return registerCommands(Deploy)
 
 
-module_commands = makeCommandDict(Build)
+commands = registerCommands(Build)

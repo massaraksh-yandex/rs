@@ -1,5 +1,5 @@
 from platform.params.params import Params
-from platform.utils.utils import makeCommandDict, readLineWithPrompt
+from platform.utils.utils import registerCommands, readLineWithPrompt
 from platform.commands.command import Command
 from platform.commands.endpoint import Endpoint
 from platform.statement.statement import emptyCommand, singleOptionCommand
@@ -94,7 +94,7 @@ class Project(Command):
         return ['{path} - команды управления проектами']
 
     def _commands(self):
-        return makeCommandDict(Add, List, Remove, Show)
+        return registerCommands(Add, List, Remove, Show)
 
 
-module_commands = makeCommandDict(Project)
+commands = registerCommands(Project)

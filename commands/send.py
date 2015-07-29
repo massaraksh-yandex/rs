@@ -1,6 +1,6 @@
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
-from platform.utils.utils import makeCommandDict
+from platform.utils.utils import registerCommands
 from src.sync.sync import Sync
 from src.utils.check import Exist
 from platform.statement.statement import Statement, Rule
@@ -27,4 +27,4 @@ class Send(Endpoint):
             project = self.database.projects()[name]
             Sync(self.database, project, dry='dry' in p.options).print().send()
 
-module_commands = makeCommandDict(Send)
+commands = registerCommands(Send)

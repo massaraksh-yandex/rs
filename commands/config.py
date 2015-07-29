@@ -1,6 +1,6 @@
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
-from platform.utils.utils import makeCommandDict
+from platform.utils.utils import registerCommands
 from platform.statement.statement import Statement, Rule
 from src.db.database import initconfig
 
@@ -56,4 +56,4 @@ class Config(Endpoint):
         initconfig()
 
 
-module_commands = makeCommandDict(Config)
+commands = registerCommands(Config)

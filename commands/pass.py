@@ -1,6 +1,6 @@
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
-from platform.utils.utils import makeCommandDict
+from platform.utils.utils import registerCommands
 from platform.statement.statement import Statement
 
 
@@ -18,4 +18,4 @@ class Pass(Endpoint):
         pass
 
 
-module_commands = makeCommandDict(Pass)
+commands = registerCommands(Pass)

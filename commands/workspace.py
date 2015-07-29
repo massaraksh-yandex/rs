@@ -1,7 +1,7 @@
 from platform.commands.command import Command
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
-from platform.utils.utils import makeCommandDict
+from platform.utils.utils import registerCommands
 from src.db import workspace
 from src.utils.check import NotExist
 from platform.statement.statement import emptyCommand, singleOptionCommand
@@ -50,7 +50,7 @@ class Workspace(Command):
         return ['{path} - команды управления рабочими окружениями']
 
     def _commands(self):
-        return makeCommandDict(Add, List)
+        return registerCommands(Add, List)
 
 
-module_commands = makeCommandDict(Workspace)
+commands = registerCommands(Workspace)

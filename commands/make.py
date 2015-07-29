@@ -1,5 +1,5 @@
 from platform.params.delimer import SingleDelimer, DoubleDelimer
-from platform.utils.utils import makeCommandDict
+from platform.utils.utils import registerCommands
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from src.utils.maker import Maker
@@ -60,4 +60,4 @@ class Make(Endpoint):
         self._syncIncludes(name)
 
 
-module_commands = makeCommandDict(Make)
+commands = registerCommands(Make)

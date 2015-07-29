@@ -1,6 +1,6 @@
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
-from platform.utils.utils import makeCommandDict
+from platform.utils.utils import registerCommands
 from src.sync.sync import Sync
 from src.utils.check import Exist
 from platform.statement.statement import Rule, Statement
@@ -52,4 +52,4 @@ class Get(Endpoint):
         Sync(self.database, ws, dry='dry' in p.options).print().get()
 
 
-module_commands = makeCommandDict(Get)
+commands = registerCommands(Get)
