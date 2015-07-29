@@ -1,5 +1,5 @@
-from platform import settings
 from os.path import join
+from platform.db import settings
 
 
 class Settings(settings.Settings):
@@ -26,7 +26,7 @@ def validatefiles():
 
 def createfiles():
     from os import makedirs
-    from src.utils import readLineWithPrompt
+    from platform.utils.utils import readLineWithPrompt
 
     answer = readLineWithPrompt('Создать конфиги в ~/.rs? [yes/no]', 'no')
     if answer != 'yes':

@@ -1,44 +1,30 @@
-from os.path import expanduser
-from platform.endpoint import Endpoint
-from platform.params import Params
-from platform.utils import makeCommandDict
-from src.project import getProjects
-from src.sync import SyncData, callSync
-from src.check_utils import Exist
-from platform.check import Check, Empty, NotEmpty, raiseWrongParsing
+from platform.commands.endpoint import Endpoint
+from platform.params.params import Params
+from platform.utils.utils import registerCommands
+from src.sync.sync import Sync
+from src.utils.check import Exist
+from platform.statement.statement import Statement, Rule
 
 
 class Send(Endpoint):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.dry = 'dry'
-
     def name(self):
         return 'send'
 
-    def _help(self):
-        return ['{path} - отправляет файлы на удалённый сервер',
-                '{path} [--dry] название_проекта',
-                '{space}--dry - показывает файлы, которые будут синхронизированы']
-
-    def syncPath(self, sd: SyncData, p : Params):
-        remote = '{0}:{1}'.format(sd.host, sd.remotePath)
-        callSync(sd.excludeFile, expanduser(sd.path)+'/', remote, self.dry in p.options)
+    def _info(self):
+        return ['{path} - отправляет файлы на удалённый сервер']
 
     def _rules(self):
-        p = lambda p: self.send if Empty.delimers(p) and \
-                                   Check.optionNamesInSet(p, [self.dry]) and \
-                                   NotEmpty.targets(p) \
-                                else raiseWrongParsing()
-
-        return [p]
+        return [Statement(['{path} [--dry] название_проекта',
+                           '{space}--dry - показывает файлы, которые будут синхронизированы'], self.send,
+                          lambda p: Rule(p).empty().delimers()
+                                           .check().optionNamesInSet('dry')
+                                           .notEmpty().targets())]
 
     def send(self, p: Params):
         for arg in p.targets:
-            Exist.project(arg)
-            sd = getProjects()[arg].toSyncData()
-            sd.showSyncInfo()
-            self.syncPath(sd, p)
+            name = arg.value
+            Exist(self.database).project(name)
+            project = self.database.projects()[name]
+            Sync(self.database, project, dry='dry' in p.options).print().send()
 
-
-module_commands = makeCommandDict(Send)
+commands = registerCommands(Send)

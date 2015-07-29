@@ -1,26 +1,23 @@
-from platform.command import Command
-from platform.endpoint import Endpoint
-from platform.params import Params
-from platform.utils import makeCommandDict
-from src.workspace import getWorkspaces
-from src import workspace
-from src.check_utils import NotExist
-from platform.check import emptyCommand, singleOptionCommand
-
+from platform.commands.command import Command
+from platform.commands.endpoint import Endpoint
+from platform.params.params import Params
+from platform.utils.utils import registerCommands
+from src.db import workspace
+from src.utils.check import NotExist
+from platform.statement.statement import emptyCommand, singleOptionCommand
 
 class List(Endpoint):
     def name(self):
         return 'list'
 
-    def _help(self):
-        return ['{path} - показывает список рабочих окружений',
-                '{path}']
+    def _info(self):
+        return ['{path} - показывает список рабочих окружений']
 
     def _rules(self):
-        return emptyCommand(self.process)
+        return emptyCommand(['{path}'], self.process)
 
     def process(self, p: Params):
-        for k, v in getWorkspaces().items():
+        for k, v in self.database.workspaces().items():
             print('workspace: ' + k)
 
 
@@ -28,19 +25,18 @@ class Add(Endpoint):
     def name(self):
         return 'add'
 
-    def _help(self):
-        return ['{path} - создаёт запись о новом рабочем окружении',
-                '{path} рабочее_окружение']
+    def _info(self):
+        return ['{path} - создаёт запись о новом рабочем окружении']
 
     def _rules(self):
-        return singleOptionCommand(self.process)
+        return singleOptionCommand(['{path} рабочее_окружение'], self.process)
 
     def process(self, p: Params):
-        name = p.targets[0]
-        NotExist.workspace(name)
-        ws = workspace.Workspace.input(name)
+        name = p.targets[0].value
+        NotExist(self.database).workspace(name)
+        ws = workspace.inputWorkspace(name)
         if ws is not None:
-            ws.serialize()
+            self.database.update(ws)
             print('Рабочее окружение {0} добавлено'.format(ws.name))
         else:
             print('Отмена...')
@@ -50,8 +46,11 @@ class Workspace(Command):
     def name(self):
         return 'workspace'
 
+    def _info(self):
+        return ['{path} - команды управления рабочими окружениями']
+
     def _commands(self):
-        return makeCommandDict(Add, List)
+        return registerCommands(Add, List)
 
 
-module_commands = makeCommandDict(Workspace)
+commands = registerCommands(Workspace)

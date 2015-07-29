@@ -1,28 +1,24 @@
-from platform.params import Params
-from platform.utils import makeCommandDict
-from platform.command import Command
-from platform.endpoint import Endpoint
-from src.check_utils import Exist, NotExist
-from platform.check import emptyCommand, singleOptionCommand
-from src.project import getProjects
-from src.utils import readLineWithPrompt, getProjectPathByName
-from os import remove
-from src import project
+from platform.params.params import Params
+from platform.utils.utils import registerCommands, readLineWithPrompt
+from platform.commands.command import Command
+from platform.commands.endpoint import Endpoint
+from platform.statement.statement import emptyCommand, singleOptionCommand
+from src.utils.check import Exist, NotExist
+from src.db.project import inputProject
 
 
 class List(Endpoint):
     def name(self):
         return 'list'
 
-    def _help(self):
-        return ['{path} - показывает список проектов',
-                '{path}']
+    def _info(self):
+        return ['{path} - показывает список проектов']
 
     def _rules(self):
-        return emptyCommand(self.process)
+        return emptyCommand(['{path}'], self.process)
 
     def process(self, p: Params):
-        for k, v in getProjects().items():
+        for k, v in self.database.projects().items():
             print("project: " + k)
 
 
@@ -30,41 +26,42 @@ class Show(Endpoint):
     def name(self):
         return 'show'
 
-    def _help(self):
-        return ['{path} - показывает информацию о проекте',
-                '{path} название_проекта']
+    def _info(self):
+        return ['{path} - показывает информацию о проекте']
 
     def _rules(self):
-        return singleOptionCommand(self.process)
+        return singleOptionCommand(['{path} название_проекта'], self.process)
 
     def process(self, p: Params):
-        name = p.targets[0]
-        Exist.project(name)
-        getProjects().get(name).print()
+        import src
+        name = p.targets[0].value
+        Exist(self.database).project(name)
+        prj = self.database.selectone(name, src.db.project.Project)
+        print(prj)
 
 
 class Remove(Endpoint):
     def name(self):
         return 'rm'
 
-    def _help(self):
-        return ['{path} - удаляет запись о проекте',
-                '{path} название_проекта']
+    def _info(self):
+        return ['{path} - удаляет запись о проекте']
 
     def _rules(self):
-        return singleOptionCommand(self.process)
+        return singleOptionCommand(['{path} название_проекта'], self.process)
 
     def process(self, p: Params):
-        name = p.targets[0]
-        Exist.project(name)
+        import src
+        name = p.targets[0].value
+        Exist(self.database).project(name)
         answer = readLineWithPrompt('Удалить проект {0}? (yes/no)'.format(name), 'no')
 
         if answer != 'yes':
             print('Отмена...')
             return
 
-        remove(getProjectPathByName(name))
-
+        prj = self.database.selectone(name, src.db.project.Project)
+        self.database.remove(prj)
         print('Проект {0} удалён'.format(name))
 
 
@@ -72,19 +69,18 @@ class Add(Endpoint):
     def name(self):
         return 'add'
 
-    def _help(self):
-        return ['{path} - создаёт запись о новом проекте',
-                '{path} название_проекта']
+    def _info(self):
+        return ['{path} - создаёт запись о новом проекте']
 
     def _rules(self):
-        return singleOptionCommand(self.process)
+        return singleOptionCommand(['{path} название_проекта'], self.process)
 
     def process(self, p: Params):
-        name = p.targets[0]
-        NotExist.project(name)
-        prj = project.Project.input(name)
+        name = p.targets[0].value
+        NotExist(self.database).project(name)
+        prj = inputProject(name, self.database)
         if prj is not None:
-            prj.serialize()
+            self.database.update(prj)
             print('Проект {0} добавлен'.format(prj.name))
         else:
             print('Отмена...')
@@ -94,8 +90,11 @@ class Project(Command):
     def name(self):
         return 'project'
 
+    def _info(self):
+        return ['{path} - команды управления проектами']
+
     def _commands(self):
-        return makeCommandDict(Add, List, Remove, Show)
+        return registerCommands(Add, List, Remove, Show)
 
 
-module_commands = makeCommandDict(Project)
+commands = registerCommands(Project)

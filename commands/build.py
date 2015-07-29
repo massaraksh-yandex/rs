@@ -1,99 +1,89 @@
-import subprocess
 from os.path import join
-
-from platform.check import singleOptionCommand, raiseWrongParsing
-from platform.endpoint import Endpoint
-from platform.command import Command
-from platform.utils import makeCommandDict
-from platform.params import Params
-from src.check_utils import *
+from platform.params.delimer import DoubleDelimer
+from platform.statement.rule import Rule
+from platform.statement.statement import Statement
+from platform.commands.endpoint import Endpoint
+from platform.commands.command import Command
+from platform.remote.remote import remote
+from platform.utils.utils import registerCommands
+from platform.params.params import Params
+from src.db.workspace import Workspace
+from src.utils.check import *
 from commands.send import Send
 from commands.make import Make
 
 
 class Deploy(Endpoint):
-    def _help(self) -> []:
-        return ['{path} - отсылает проект на сервер и компилирует его',
-                '{path} проект',
-                '{space}Для синхронизации используется команда send проект',
-                '{space}Для построения make all install -- проект']
+    def _info(self) -> []:
+        return ['{path} - отсылает проект на сервер и компилирует его']
 
     def _rules(self) -> []:
-        return singleOptionCommand(self.deploy)
+        return [ Statement(['{path} [--targets=цели] проект',
+                            "{space}Для синхронизации используется команда 'send проект'",
+                            "{space}Для построения 'make цели -- проект'",
+                            '--targets - задаёт цели для построения',
+                            '{space}цели по умолчанию: all, install, check',
+                            '{space}цели задаются через запятую'], self.deploy,
+                           lambda p: Rule(p).empty().delimers()
+                                            .check().optionNamesInSet('targets')
+                                            .size().equals(p.targets, 1)) ]
 
     def name(self) -> '':
         return 'deploy'
 
     def deploy(self, p: Params):
-        name = p.targets[0]
-        Exist.project(name)
-        Send(self).execute([name])
-        Make(self).execute(['all', 'install', '--', name])
-        Make(self).execute(['check', '--', name])
+        name = p.targets[0].value
+        Exist(self.database).project(name)
+        targets = p.options['targets'] or 'all,install,check'
+
+        self.subcmd(Send).execute([name])
+        for i in targets.split(','):
+            self.subcmd(Make).execute([i, '--', name])
 
 
 class Run(Endpoint):
-    def _help(self) -> []:
-        return ['{path} - запускает программу на удалённой машине',
-                '{path} проект [--workspace] - путь_до_программы',
-                '{space}путь_до_программы берётся относительно корневой папки проекта',
-                '{space}--workspace - если параметр не указан, то берётся станрадтное рабочее окружение проекта']
-
-    def _rules(self) -> []:
-        return [lambda p: self.run]
-
-    def name(self) -> '':
+    def name(self):
         return 'run'
 
-    def _makeParams(self, argv):
-        p = Params.makeRawParams(argv)
-        if len(argv) == 0:
-            p._helpOptionIndex = 0
-        return p
+    def _info(self):
+        return ['{path} - запускает программу на удалённой машине']
 
-    def parseArgs(self, p: Params):
-        projectName = None
-        workspace = None
-        args = []
+    def _needHelp(self, p: Params):
+        return p.needHelp and len(p.targets) == 0
 
-        sep = p.argv.index('-')
-        if sep == 1:
-            projectName = p.argv[0]
-        elif sep == 2:
-            projectName = p.argv[0]
-            k, workspace = Params.parseOption(p.argv[1])
-            if k != 'workspace' or not workspace:
-                raiseWrongParsing()
-        else:
-            raiseWrongParsing()
+    def _rules(self):
+        return [ Statement(['{path} рабочее_окружение -- путь_до_пограммы -- аргументы ',
+                            '{space}путь_до_программы - относительный путь от корня рабочего окружения',
+                            '{space}для показа справки надо вызвать {path} --help'], self.run,
+                           lambda p: Rule(p).size().moreOrEquals(p.targets, 2)
+                                            .size().moreOrEquals(p.delimers, 2)
+                                            .size().equals(p.delimered[0], 1)
+                                            .size().equals(p.delimered[1], 1)
+                                            .check().delimersType(DoubleDelimer)) ]
 
-        pathToProgram = p.argv[sep+1]
-
-        if len(p.argv) > sep+2:
-            if p.argv[sep+2] != '-':
-                raiseWrongParsing()
-            args = p.argv[sep+3:]
-
-        Exist.project(projectName)
-        project = getProjects()[projectName]
-        ws = getWorkspaces()[ workspace if workspace else project.workspace ]
-
-        return (project, ws, pathToProgram, args)
+    def _findSecondDelimer(self, args, index = 0):
+        i = args.index(DoubleDelimer.value)
+        return self._findSecondDelimer(args[i+1:], i+1) if index == 0 else i+index+1
 
     def run(self, p: Params):
-        project, ws, pathToProgram, args = self.parseArgs(p)
-        name = join(ws.src, project.name, pathToProgram)
-        command = 'cd "$(dirname {name})" && ./"$(basename {name})" {args}'.format(name=name, args=' '.join(args))
-        subprocess.call(['ssh', ws.host, command])
+        ws = self.database.selectone(p.delimered[0][0].value, Workspace)
+        path = p.delimered[1][0].value
 
+        i = self._findSecondDelimer(p.argv)
+
+        for s in remote(ws.host).withstderr().path(join(ws.path, path)).cmd(p.argv[i:]).exec():
+            print(s, end='')
 
 
 class Build(Command):
     def name(self) -> '':
         return 'build'
 
+    def _info(self):
+        return ['{path} - составные высокоуровневые команды для упрощения процесса разработки']
+
     def _commands(self) -> {}:
-        return makeCommandDict(Deploy, Run)
+        return registerCommands(Deploy, Run)
 
 
-module_commands = makeCommandDict(Build)
+commands = registerCommands(Build)
