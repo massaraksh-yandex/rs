@@ -17,7 +17,7 @@ class Send(Endpoint):
         return [Statement(['{path} [--dry] название_проекта',
                            '{space}--dry - показывает файлы, которые будут синхронизированы'], self.send,
                           lambda p: Rule(p).empty().delimers()
-                                           .check().optionNamesInSet(['dry'])
+                                           .check().optionNamesInSet('dry')
                                            .notEmpty().targets())]
 
     def send(self, p: Params):

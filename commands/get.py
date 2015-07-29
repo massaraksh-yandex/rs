@@ -18,7 +18,7 @@ class Get(Endpoint):
         p = Statement(['{path} [--dry] проект',
                        '{space}--dry - показывает файлы, которые будут синхронизированы'], self.syncProjects,
                       lambda p: Rule(p).empty().delimers()
-                                       .check().optionNamesInSet(['dry'])
+                                       .check().optionNamesInSet('dry')
                                        .notEmpty().targets())
 
         w = Statement(['{path} --workspace [--path=src] [--dry] окружение - получает часть рабочего окружения',
@@ -26,7 +26,7 @@ class Get(Endpoint):
                        '{space}--dry - показывает файлы, которые будут синхронизированы'], self.syncWorkspaces,
                       lambda p: Rule(p).empty().delimers()
                                        .notEmpty().options()
-                                       .check().optionNamesInSet(['workspace', 'path', 'dry'])
+                                       .check().optionNamesInSet('workspace', 'path', 'dry')
                                        .has().option('workspace')
                                        .size().equals(p.targets, 1))
 
