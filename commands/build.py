@@ -38,7 +38,9 @@ class Deploy(Endpoint):
 
         self.subcmd(Send).execute([name])
         for i in targets.split(','):
-            self.subcmd(Make).execute([i, '--', name])
+            self.subcmd(Make).execute([i, '--', name, '--mode=do-not-sync'])
+
+        self.subcmd(Make).execute(['all', '--', name, '--mode=only-sync'])
 
 
 class Run(Endpoint):
