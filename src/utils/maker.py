@@ -2,6 +2,7 @@ import subprocess
 import sys
 from platform.color.color import Color, Style
 from platform.color.highlighter import Highlighter, RR, CR
+from platform.execute.run import run
 from src.db.project import Project
 from src.db.workspace import Workspace
 
@@ -9,15 +10,14 @@ from src.db.workspace import Workspace
 class Maker(object):
     def __init__(self, database, makeTargets, jobs = None):
         self.maketargets = ' '.join(makeTargets)
-        self.jobs = jobs or '$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)'
+        self.jobs = jobs or '\"$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)\"'
         self.db = database
         self.cmd = ' && '.join(['cd {ws}/{prj}/{makefilepath}',
                                 'CORENUM={jobs}',
                                 'make {targets} -j$CORENUM 2>&1'])
 
     def _getRealWorkspacePath(self, ws: Workspace):
-        sp = subprocess.Popen(['ssh', ws.host, 'cd {0} && readlink -m .'.format(ws.path)], stdout=subprocess.PIPE)
-        return sp.stdout.readlines()[0].decode('utf-8').rstrip()
+        return run(ws.host).path(ws.path).cmd('readlink -m .').call().rstrip()
 
     def _getHighlighter(self, ws: Workspace, prj: Project):
         path = self._getRealWorkspacePath(ws)
@@ -36,11 +36,7 @@ class Maker(object):
 
         self.cmd = self.cmd.format(ws=ws.src, prj=name, makefilepath=path, targets=self.maketargets, jobs=self.jobs)
 
-        proc = subprocess.Popen(['ssh', ws.host, self.cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
-        while True:
-            line = proc.stdout.readline().decode("utf-8")
-            if line == '':
-                break
-            line = hl.highlight(line)
-            sys.stderr.write(line)
+        p = run(ws.host).withstderr().cmd(self.cmd)
+        for s in p.exec():
+            sys.stderr.write(hl.highlight(s))
             sys.stderr.flush()

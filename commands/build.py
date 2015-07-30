@@ -4,7 +4,7 @@ from platform.statement.rule import Rule
 from platform.statement.statement import Statement
 from platform.commands.endpoint import Endpoint
 from platform.commands.command import Command
-from platform.remote.remote import remote
+from platform.execute.run import run
 from platform.utils.utils import registerCommands
 from platform.params.params import Params
 from src.db.workspace import Workspace
@@ -73,7 +73,7 @@ class Run(Endpoint):
 
         i = self._findSecondDelimer(p.argv)
 
-        for s in remote(ws.host).withstderr().path(join(ws.path, path)).cmd(p.argv[i:]).exec():
+        for s in run(ws.host).withstderr().path(join(ws.path, path)).cmd(p.argv[i:]).exec():
             print(s, end='')
 
 
