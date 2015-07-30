@@ -1,3 +1,4 @@
+from platform.color.color import colored, Color, Style
 from platform.params.delimer import SingleDelimer, DoubleDelimer
 from platform.utils.utils import registerCommands
 from platform.commands.endpoint import Endpoint
@@ -45,12 +46,14 @@ class Make(Endpoint):
     def _make(self, p: Params, maker, name, path = '.'):
         if p.options['mode'] != 'only-sync':
             Exist(self.database).project(name)
-            print('Проект ' + name)
+            print(colored('Собираю проект', Color.green, Style.underline))
+            print('Проект: ' + colored(name, Color.blue))
+            print('Цели: ' + colored(maker.maketargets, Color.blue))
             maker.make(name)
 
     def _syncIncludes(self, project, p: Params):
         if p.options['mode'] != 'do-not-sync':
-            print('Синхронизирую заголовки...')
+            print(colored('Синхронизирую заголовки', Color.green, Style.underline))
             pr = self.database.projects()[project]
             self.subcmd(Get).execute([pr.workspace, '--workspace', '--path=include'])
 
