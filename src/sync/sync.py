@@ -1,5 +1,6 @@
 from os.path import isfile
 from os.path import join, expanduser
+from platform.color.color import colored, Color
 from src.db.config import Config
 from src.db.database import Database
 from src.db.project import Project
@@ -32,6 +33,7 @@ class Sync(object):
 
     def print(self):
         print (self)
+        print()
         return self
 
     def __str__(self):
@@ -40,4 +42,8 @@ class Sync(object):
                           'Файл с исключениями: {exclude}',
                           'Тестовый прогон: {dry}',
                           'Опции синхронизации: {options}'])\
-            .format(**self.__dict__)
+            .format(path=colored(self.path, Color.blue),
+                    remotePath=colored(self.remotePath, Color.blue),
+                    exclude=colored(self.exclude, Color.blue),
+                    dry=colored('Да' if self.dry else 'Нет', Color.blue),
+                    options=colored(self.options, Color.blue))
