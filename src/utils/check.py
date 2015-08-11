@@ -45,5 +45,5 @@ class Exist:
     def workspaces(self, wsList):
         for ws in wsList:
             if ws not in self.database.workspaces():
-                raise WrongTargets('Нет такого рабочего окружения: ' + ws)
+                raise WrongTargets('Нет такого рабочего окружения: ' + str(ws))
         return True

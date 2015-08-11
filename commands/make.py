@@ -47,7 +47,7 @@ class Make(Endpoint):
         if p.options['mode'] != 'only-sync':
             Exist(self.database).project(name)
             print()
-            print(colored('Собираю проект', Color.green, Style.underline))
+            print(colored('Запуск сборки', Color.green, Style.underline))
             print('Проект: ' + colored(name, Color.blue))
             print('Цели: ' + colored(maker.maketargets, Color.blue))
             maker.make(name)

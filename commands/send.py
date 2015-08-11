@@ -14,17 +14,23 @@ class Send(Endpoint):
         return ['{path} - отправляет файлы на удалённый сервер']
 
     def _rules(self):
-        return [Statement(['{path} [--dry] название_проекта',
-                           '{space}--dry - показывает файлы, которые будут синхронизированы'], self.send,
+        return [Statement(['{path} [--dry] [--workspace=имя] название_проекта',
+                           '{space}--dry - показывает файлы, которые будут синхронизированы',
+                           '{space}--workspace - в какое рабочее окружение посылать проект'], self.send,
                           lambda p: Rule(p).empty().delimers()
-                                           .check().optionNamesInSet('dry')
+                                           .check().optionNamesInSet('dry', 'workspace')
                                            .notEmpty().targets())]
 
     def send(self, p: Params):
+        ws = p.options['workspace']
+        if ws:
+            Exist(self.database).workspace(ws)
+
         for arg in p.targets:
             name = arg.value
             Exist(self.database).project(name)
             project = self.database.projects()[name]
+            project.workspace = ws or project.workspace
             Sync(self.database, project, dry='dry' in p.options).print().send()
 
 commands = registerCommands(Send)

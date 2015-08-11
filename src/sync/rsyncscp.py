@@ -3,7 +3,7 @@ import subprocess
 
 class RsyncSync(object):
     def __init__(self, args, exclude, dry):
-        self._options = ['rsync'] + ['--cvs-exclude', '--exclude-from='+exclude] + args
+        self._options = ['rsync'] + ['--exclude-from='+exclude, '--cvs-exclude'] + args
         if dry:
             self._options.append('-n')
 
