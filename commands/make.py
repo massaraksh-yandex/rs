@@ -68,7 +68,7 @@ class Make(Endpoint):
             self._syncIncludes(name, p)
 
     def makeMakefile(self, p: Params):
-        makeTargets = p.delimered[0]
+        makeTargets = [ x.value for x in p.delimered[0] ]
         targets = p.delimered[1]
         name = targets[0].value
         path = targets[1].value
