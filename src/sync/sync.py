@@ -15,12 +15,12 @@ class Sync(object):
         self.dry = dry
         self.path = join(object.path, object.name)
         self.remotePath = ws.host + ':' + join(ws.src, object.name)
-        self.exclude = self._getExcludeFile(object.path, config)
+        self.exclude = self._getExcludeFile(object.path, object.name, config)
         self.backend = RsyncSync(config.argSync, self.exclude, self.dry)
         self.options = self.backend.options()
 
-    def _getExcludeFile(self, path, cfg: Config):
-        f = expanduser(join(path, cfg.excludeFileName))
+    def _getExcludeFile(self, path, name, cfg: Config):
+        f = expanduser(join(path, name, cfg.excludeFileName))
         return f if isfile(f) else join(cfg.settings.CONFIG_DIR, cfg.excludeFileName)
 
     def get(self):
