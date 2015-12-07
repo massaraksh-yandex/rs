@@ -29,10 +29,14 @@ class Maker(object):
                            RR(r',', ',', Color.green), RR(r'<', '<', Color.green),
                            RR(r'>', '>', Color.green), CR(r'\[\s*\d+%\]', Color.violent))
 
-    def make(self, name, path = '.'):
+    def _getNameReplaces(self, ws: Workspace, prj: Project):
+        path = self._getRealWorkspacePath(ws)
+        return Highlighter(RR(path, ws.path, Color.no), RR('/home', self.db.config.homeFolderName, Color.no))
+
+    def make(self, name, path = '.', need_highlight = True):
         project = self.db.selectone(name, Project)
         ws = self.db.selectone(project.workspace, Workspace)
-        hl = self._getHighlighter(ws, project)
+        hl = (self._getHighlighter if need_highlight else self._getNameReplaces)(ws, project)
 
         self.cmd = self.cmd.format(ws=ws.src, prj=name, makefilepath=path, targets=self.maketargets, jobs=self.jobs)
 

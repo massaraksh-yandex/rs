@@ -22,13 +22,14 @@ class Make(Endpoint):
                               '{space}mode - регулирует что надо делать: собирать или синхронизировать папку include',
                               '{space}{space}all (или отсутсвие опции) - собирать и синхронизировать',
                               '{space}{space}do-not-sync - не синхронизировать include',
-                              '{space}{space}only-sync - не собирать, только синхронизировать'])
+                              '{space}{space}only-sync - не собирать, только синхронизировать',
+                              '{space}nohl - не окрашивать и не преобразовывать вывод'])
 
 
         sm = Statement(['{path} цели -- названия_проектов'], self.makeMakefile,
                        lambda p: Rule(p).size().equals(p.delimers, 1)
                                         .check().delimersType(SingleDelimer)
-                                        .check().optionNamesInSet('jobs', 'mode')
+                                        .check().optionNamesInSet('jobs', 'mode', 'nohl')
                                         .check().optionValueInSet('mode', None, 'all', 'do-not-sync', 'only-sync')
                                         .notEmpty().array(p.delimered[0])
                                         .size().equals(p.delimered[1], 2))
@@ -36,7 +37,7 @@ class Make(Endpoint):
         mp = Statement(['{path} цели - название_проекта папка_с_Makefile'], self.makeProjects,
                        lambda p: Rule(p).size().equals(p.delimers, 1)
                                         .check().delimersType(DoubleDelimer)
-                                        .check().optionNamesInSet('jobs', 'mode')
+                                        .check().optionNamesInSet('jobs', 'mode', 'nohl')
                                         .check().optionValueInSet('mode', None, 'all', 'do-not-sync', 'only-sync')
                                         .notEmpty().array(p.delimered[0])
                                         .notEmpty().array(p.delimered[1]))
@@ -50,7 +51,8 @@ class Make(Endpoint):
             print(colored('Запуск сборки', Color.green, Style.underline))
             print('Проект: ' + colored(name, Color.blue))
             print('Цели: ' + colored(maker.maketargets, Color.blue))
-            maker.make(name)
+            print('Путь: ' + colored(path, Color.blue))
+            maker.make(name, path, need_highlight=not ('nohl' in p.options))
 
     def _syncIncludes(self, project, p: Params):
         if p.options['mode'] != 'do-not-sync':
