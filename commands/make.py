@@ -59,7 +59,7 @@ class Make(Endpoint):
             print()
             print(colored('Синхронизирую заголовки', Color.green, Style.underline))
             pr = self.database.projects()[project]
-            self.subcmd(Get).execute([pr.workspace, '--workspace', '--path=include'])
+            self.subcmd(Get).execute([pr.workspace, '--workspace', '--path=include', '--erase_missing'])
 
     def makeProjects(self, p: Params):
         makeTargets = [ x.value for x in p.delimered[0] ]

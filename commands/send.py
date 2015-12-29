@@ -16,9 +16,10 @@ class Send(Endpoint):
     def _rules(self):
         return [Statement(['{path} [--dry] [--workspace=имя] название_проекта',
                            '{space}--dry - показывает файлы, которые будут синхронизированы',
-                           '{space}--workspace - в какое рабочее окружение посылать проект'], self.send,
+                           '{space}--workspace - в какое рабочее окружение посылать проект',
+                           '{space}--erase_missing - удаляет файлы, которых нет в папке назначения'], self.send,
                           lambda p: Rule(p).empty().delimers()
-                                           .check().optionNamesInSet('dry', 'workspace')
+                                           .check().optionNamesInSet('dry', 'workspace', 'erase_missing')
                                            .notEmpty().targets())]
 
     def send(self, p: Params):
@@ -31,6 +32,6 @@ class Send(Endpoint):
             Exist(self.database).project(name)
             project = self.database.projects()[name]
             project.workspace = ws or project.workspace
-            Sync(self.database, project, dry='dry' in p.options).print().send()
+            Sync(self.database, project, 'dry' in p.options, 'erase_missing' in p.options).print().send()
 
 commands = registerCommands(Send)

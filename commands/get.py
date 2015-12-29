@@ -16,17 +16,19 @@ class Get(Endpoint):
 
     def _rules(self):
         p = Statement(['{path} [--dry] проект',
-                       '{space}--dry - показывает файлы, которые будут синхронизированы'], self.syncProjects,
+                       '{space}--dry - показывает файлы, которые будут синхронизированы',
+                       '{space}--erase_missing - удаляет файлы, которых нет в папке назначения'], self.syncProjects,
                       lambda p: Rule(p).empty().delimers()
-                                       .check().optionNamesInSet('dry')
+                                       .check().optionNamesInSet('dry', 'erase_missing')
                                        .notEmpty().targets())
 
         w = Statement(['{path} --workspace [--path=src] [--dry] окружение - получает часть рабочего окружения',
                        '{space}--path Получает указанную папку из рабочего окружения',
-                       '{space}--dry - показывает файлы, которые будут синхронизированы'], self.syncWorkspaces,
+                       '{space}--dry - показывает файлы, которые будут синхронизированы',
+                       '{space}--erase_missing - удаляет файлы, которых нет в папке назначения'], self.syncWorkspaces,
                       lambda p: Rule(p).empty().delimers()
                                        .notEmpty().options()
-                                       .check().optionNamesInSet('workspace', 'path', 'dry')
+                                       .check().optionNamesInSet('workspace', 'path', 'dry', 'erase_missing')
                                        .has().option('workspace')
                                        .size().equals(p.targets, 1))
 
@@ -38,7 +40,7 @@ class Get(Endpoint):
             name = arg.value
             Exist(self.database).project(name)
             project = projects[name]
-            Sync(self.database, project, dry='dry' in p.options).print().get()
+            Sync(self.database, project, 'dry' in p.options, 'erase_missing' in p.options).print().get()
 
     def syncWorkspaces(self, p: Params):
         wsName = p.targets[0].value
@@ -49,7 +51,7 @@ class Get(Endpoint):
         if 'path' in p.options:
             ws.name = p.options['path']
 
-        Sync(self.database, ws, dry='dry' in p.options).print().get()
+        Sync(self.database, ws, 'dry' in p.options, 'erase_missing' in p.options).print().get()
 
 
 commands = registerCommands(Get)
