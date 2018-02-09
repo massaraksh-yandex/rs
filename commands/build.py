@@ -23,9 +23,10 @@ class Deploy(Endpoint):
                             "{space}Для построения 'make цели -- проект'",
                             '--targets - задаёт цели для построения',
                             '{space}цели по умолчанию: all, install, check',
-                            '{space}цели задаются через запятую'], self.deploy,
+                            '{space}цели задаются через запятую',
+                            '--path - в этой папке будет происходить сборка'], self.deploy,
                            lambda p: Rule(p).empty().delimers()
-                                            .check().optionNamesInSet('targets')
+                                            .check().optionNamesInSet('targets', 'path')
                                             .size().equals(p.targets, 1)) ]
 
     def name(self) -> '':
@@ -36,9 +37,14 @@ class Deploy(Endpoint):
         Exist(self.database).project(name)
         targets = p.options['targets'] or 'all,install,check'
 
+        path = p.options['path']
+
         self.subcmd(Send).execute([name])
         for i in targets.split(','):
-            self.subcmd(Make).execute([i, '--', name, '--mode=do-not-sync', '--nohl'])
+            if (path is not None):
+                self.subcmd(Make).execute([i, '-', name, path, '--mode=do-not-sync', '--nohl'])
+            else:
+                self.subcmd(Make).execute([i, '--', name, '--mode=do-not-sync', '--nohl'])
 
         self.subcmd(Make).execute(['all', '--', name, '--mode=only-sync', '--nohl'])
 
