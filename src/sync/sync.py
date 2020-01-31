@@ -32,7 +32,7 @@ class Sync(object):
         return self
 
     def print(self):
-        print (self)
+        print(self)
         print()
         return self
 

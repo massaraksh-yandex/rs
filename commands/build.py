@@ -41,7 +41,7 @@ class Deploy(Endpoint):
 
         self.subcmd(Send).execute([name])
         for i in targets.split(','):
-            if (path is not None):
+            if path is not None:
                 self.subcmd(Make).execute([i, '-', name, path, '--mode=do-not-sync', '--nohl'])
             else:
                 self.subcmd(Make).execute([i, '--', name, '--mode=do-not-sync', '--nohl'])
@@ -83,6 +83,41 @@ class Run(Endpoint):
             print(s, end='')
 
 
+class Yamake(Endpoint):
+    def _info(self) -> []:
+        return ['{path} - отсылает проект на сервер и запускает ya make']
+
+    def _rules(self) -> []:
+        return [Statement(['{path} [--t] [--ws] проект',
+                           "{space}Для синхронизации используется команда 'send проект'",
+                           "{space}Для построения запуск yamake на удалённой тачке",
+                           '--ws - имя воркспейса',
+                           '--t - запуск тестов'], self.yamake,
+                          lambda p: Rule(p).empty().delimers()
+                                           .check().optionNamesInSet('t', 'tt', 'ttt', 'ws')
+                                           .size().equals(p.targets, 1))]
+
+    def name(self) -> '':
+        return 'yamake'
+
+    def yamake(self, p: Params):
+        path = p.targets[0].value
+        name = path.split('/')[-1]
+        ws = p.options['ws'] if 'ws' in p.options else 'mail'
+        Exist(self.database).project(name)
+
+        make_params = [ws, '--', name, '--mode=do-not-sync', '--ws='+ws]
+        if 't' in p.options:
+            make_params.append('--t=1')
+        elif 'tt' in p.options:
+            make_params.append('--t=2')
+        elif 'ttt' in p.options:
+            make_params.append('--t=3')
+
+        self.subcmd(Send).execute([ws])
+        self.subcmd(Make).execute(make_params)
+
+
 class Build(Command):
     def name(self) -> '':
         return 'build'
@@ -91,7 +126,7 @@ class Build(Command):
         return ['{path} - составные высокоуровневые команды для упрощения процесса разработки']
 
     def _commands(self) -> {}:
-        return registerCommands(Deploy, Run)
+        return registerCommands(Deploy, Run, Yamake)
 
 
 commands = registerCommands(Build)
