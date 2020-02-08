@@ -1,6 +1,7 @@
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import registerCommands
+from src.sync.rsyncscp import RsyncSync, ArcSync
 from src.sync.sync import Sync
 from src.utils.check import Exist
 from platform.statement.statement import Rule, Statement
@@ -8,6 +9,8 @@ from src.db.workspace import Workspace
 
 
 class Get(Endpoint):
+    SYNC = RsyncSync
+
     def name(self):
         return 'get'
 
@@ -40,7 +43,7 @@ class Get(Endpoint):
             name = arg.value
             Exist(self.database).project(name)
             project = projects[name]
-            Sync(self.database, project, 'dry' in p.options, 'erase_missing' in p.options).print().get()
+            Sync(self.database, project, 'dry' in p.options, 'erase_missing' in p.options, backend_class=self.SYNC).print().get()
 
     def syncWorkspaces(self, p: Params):
         wsName = p.targets[0].value
@@ -51,7 +54,14 @@ class Get(Endpoint):
         if 'path' in p.options:
             ws.name = p.options['path']
 
-        Sync(self.database, ws, 'dry' in p.options, 'erase_missing' in p.options).print().get()
+        Sync(self.database, ws, 'dry' in p.options, 'erase_missing' in p.options, backend_class=self.SYNC).print().get()
 
 
-commands = registerCommands(Get)
+class ArcGet(Get):
+    SYNC = ArcSync
+
+    def name(self):
+        return 'arc_get'
+
+
+commands = registerCommands(Get, ArcGet)

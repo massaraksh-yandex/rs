@@ -8,15 +8,16 @@ from src.sync.rsyncscp import RsyncSync
 
 
 class Sync(object):
-    def __init__(self, database: Database, object, dry = False, erase_missing = False):
-        ws = database.workspaces()[object.workspace] if isinstance(object, Project) else object
+    def __init__(self, database: Database, obj, dry=False, erase_missing=False, backend_class=RsyncSync):
+        self.ws = database.workspaces()[obj.workspace] if isinstance(obj, Project) else obj
         config = database.config
 
         self.dry = dry
-        self.path = join(object.path, object.name)
-        self.remotePath = ws.host + ':' + join(ws.src, object.name)
-        self.exclude = self._getExcludeFile(object.path, object.name, config)
-        self.backend = RsyncSync(config.argSync, self.exclude, self.dry, erase_missing)
+        self.path = join(obj.path, obj.name)
+        self.remotePath = self.ws.host + ':' + join(self.ws.src, obj.name)
+        self.exclude = self._getExcludeFile(obj.path, obj.name, config)
+        self.backend = backend_class(args=config.argSync, exclude=self.exclude,
+                                     dry=self.dry, erase_missing=erase_missing)
         self.options = self.backend.options()
 
     def _getExcludeFile(self, path, name, cfg: Config):
@@ -24,11 +25,11 @@ class Sync(object):
         return f if isfile(f) else join(cfg.settings.CONFIG_DIR, cfg.excludeFileName)
 
     def get(self):
-        self.backend.sync(self.remotePath, expanduser(self.path))
+        self.backend.get(source=self.remotePath, destination=expanduser(self.path), ws=self.ws)
         return self
 
     def send(self):
-        self.backend.sync(expanduser(self.path), self.remotePath)
+        self.backend.send(source=expanduser(self.path), destination=self.remotePath, ws=self.ws)
         return self
 
     def print(self):

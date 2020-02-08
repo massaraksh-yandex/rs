@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3 -u
+#!/usr/local/bin/python3.7 -u
 from platform.utils.main import main, ConfigHooks
 from src.db.database import Database, initconfig
 from src.db.settings import validatefiles, createfiles

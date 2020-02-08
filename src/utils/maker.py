@@ -10,11 +10,10 @@ from src.db.workspace import Workspace
 class Maker(object):
     def __init__(self, database, targets, jobs=None, tests=None):
         self.maketargets = ' '.join(targets)
-        self.jobs = jobs or '\"$(cat /proc/cpuinfo | grep \"^processor\" | wc -l)\"'
+        self.jobs = '-j'+str(jobs) if jobs is not None else ''
         self.db = database
         self.cmd = ' && '.join(['cd {ws}/{makefilepath}',
-                                'CORENUM={jobs}',
-                                '~/arcadia/ya make {targets}'])
+                                f'~/arcadia/ya make {self.jobs}'+' {targets}'])
         if tests is not None:
             self.cmd += ' && ~/arcadia/ya make -{0} --keep-going'.format('t'*int(tests))
 

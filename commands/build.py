@@ -9,7 +9,7 @@ from platform.utils.utils import registerCommands
 from platform.params.params import Params
 from src.db.workspace import Workspace
 from src.utils.check import *
-from commands.send import Send
+from commands.send import Send, ArcSend
 from commands.make import Make
 
 
@@ -92,9 +92,10 @@ class Yamake(Endpoint):
                            "{space}Для синхронизации используется команда 'send проект'",
                            "{space}Для построения запуск yamake на удалённой тачке",
                            '--ws - имя воркспейса',
+                           '--path - папка в аркадии первого уровня',
                            '--t - запуск тестов'], self.yamake,
                           lambda p: Rule(p).empty().delimers()
-                                           .check().optionNamesInSet('t', 'tt', 'ttt', 'ws')
+                                           .check().optionNamesInSet('t', 'tt', 'ttt', 'ws', 'path')
                                            .size().equals(p.targets, 1))]
 
     def name(self) -> '':
@@ -103,10 +104,12 @@ class Yamake(Endpoint):
     def yamake(self, p: Params):
         path = p.targets[0].value
         name = path.split('/')[-1]
-        ws = p.options['ws'] if 'ws' in p.options else 'mail'
+        folder = p.options['path'] if 'path' in p.options else 'mail'
+        work = self.database.workspaces()[p.options['ws'] if 'ws' in p.options else 'arcadia']
+
         Exist(self.database).project(name)
 
-        make_params = [ws, '--', name, '--mode=do-not-sync', '--ws='+ws]
+        make_params = [folder, '--', name, '--mode=do-not-sync', '--ws='+folder]
         if 't' in p.options:
             make_params.append('--t=1')
         elif 'tt' in p.options:
@@ -114,7 +117,14 @@ class Yamake(Endpoint):
         elif 'ttt' in p.options:
             make_params.append('--t=3')
 
-        self.subcmd(Send).execute([ws])
+        if work.arc:
+            cmd_class = ArcSend
+            ws = 'arc'
+        else:
+            cmd_class = Send
+            ws = name
+
+        self.subcmd(cmd_class).execute([ws])
         self.subcmd(Make).execute(make_params)
 
 

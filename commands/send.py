@@ -1,12 +1,15 @@
 from platform.commands.endpoint import Endpoint
 from platform.params.params import Params
 from platform.utils.utils import registerCommands
+from src.sync.rsyncscp import RsyncSync, ArcSync
 from src.sync.sync import Sync
 from src.utils.check import Exist
 from platform.statement.statement import Statement, Rule
 
 
 class Send(Endpoint):
+    SYNC = RsyncSync
+
     def name(self):
         return 'send'
 
@@ -32,6 +35,15 @@ class Send(Endpoint):
             Exist(self.database).project(name)
             project = self.database.projects()[name]
             project.workspace = ws or project.workspace
-            Sync(self.database, project, 'dry' in p.options, 'erase_missing' in p.options).print().send()
+            Sync(database=self.database, obj=project, dry='dry' in p.options,
+                 erase_missing='erase_missing' in p.options, backend_class=self.SYNC).print().send()
 
-commands = registerCommands(Send)
+
+class ArcSend(Send):
+    SYNC = ArcSync
+
+    def name(self):
+        return 'arc_send'
+
+
+commands = registerCommands(Send, ArcSend)

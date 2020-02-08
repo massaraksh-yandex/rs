@@ -4,13 +4,14 @@ import json
 
 
 class Workspace:
-    def __init__(self, name, host, path, include, src, etc):
+    def __init__(self, name, host, path, include, src, etc, arc):
         self.name = name
         self.host = host
         self.path = path
         self.include = include
         self.src = src
         self.etc = etc
+        self.arc = arc
 
     def __repr__(self):
         return json.dumps(self.__dict__)
@@ -31,8 +32,9 @@ def inputWorkspace(name):
     include = readLineWithPrompt('Заголовочные файлы', join(path, 'include'))
     src = readLineWithPrompt('Исходный код', join(path, 'src'))
     etc = readLineWithPrompt('Конфигурационные файлы', join(path, 'etc'))
+    arc = readLineWithPrompt('Arc (yes/no)', 'no')
 
-    ws = Workspace(name, host, path, include, src, etc)
+    ws = Workspace(name, host, path, include, src, etc, arc == 'yes')
     if readLineWithPrompt('Всё верно (yes/no)', 'no') != 'yes':
         return None
     else:
