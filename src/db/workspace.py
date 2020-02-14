@@ -1,16 +1,12 @@
-from os.path import join
-from platform.utils.utils import readLineWithPrompt
 import json
 
 
 class Workspace:
-    def __init__(self, name, host, path, include, src, etc, arc):
+    def __init__(self, name, host, path, sync_path, arc):
         self.name = name
         self.host = host
         self.path = path
-        self.include = include
-        self.src = src
-        self.etc = etc
+        self.sync_path = sync_path
         self.arc = arc
 
     def __repr__(self):
@@ -20,22 +16,7 @@ class Workspace:
         return '\n'.join(['Название: {name}',
                           'Хост: {host}',
                           'Корень: {path}',
-                          'Заголовочные файлы: {include}',
-                          'Исходный код: {src}',
-                          'Конфигурационные файлы: {etc}'])\
+                          'Чё синхрим: {sync_path}',
+                          'Arc: {arc}',
+                          ])\
             .format(**self.__dict__)
-
-
-def inputWorkspace(name):
-    host = readLineWithPrompt('Хост', 'wmidevaddr')
-    path = readLineWithPrompt('Путь', '~/ws')
-    include = readLineWithPrompt('Заголовочные файлы', join(path, 'include'))
-    src = readLineWithPrompt('Исходный код', join(path, 'src'))
-    etc = readLineWithPrompt('Конфигурационные файлы', join(path, 'etc'))
-    arc = readLineWithPrompt('Arc (yes/no)', 'no')
-
-    ws = Workspace(name, host, path, include, src, etc, arc == 'yes')
-    if readLineWithPrompt('Всё верно (yes/no)', 'no') != 'yes':
-        return None
-    else:
-        return ws

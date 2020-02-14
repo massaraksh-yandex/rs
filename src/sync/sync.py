@@ -4,24 +4,24 @@ from platform.color.color import colored, Color
 from src.db.config import Config
 from src.db.database import Database
 from src.db.project import Project
-from src.sync.rsyncscp import RsyncSync
+from src.db.workspace import Workspace
 
 
 class Sync(object):
-    def __init__(self, database: Database, obj, dry=False, erase_missing=False, backend_class=RsyncSync):
-        self.ws = database.workspaces()[obj.workspace] if isinstance(obj, Project) else obj
+    def __init__(self, database: Database, obj: Project, ws: Workspace, backend_class, dry=False, erase_missing=False, ):
+        self.ws = ws
         config = database.config
 
         self.dry = dry
-        self.path = join(obj.path, obj.name)
-        self.remotePath = self.ws.host + ':' + join(self.ws.src, obj.name)
-        self.exclude = self._getExcludeFile(obj.path, obj.name, config)
+        self.path = join(config.default_local_path, obj.path)
+        self.remotePath = self.ws.host + ':' + join(self.ws.path, obj.path)
+        self.exclude = self._getExcludeFile(obj.path, config)
         self.backend = backend_class(args=config.argSync, exclude=self.exclude,
                                      dry=self.dry, erase_missing=erase_missing)
         self.options = self.backend.options()
 
-    def _getExcludeFile(self, path, name, cfg: Config):
-        f = expanduser(join(path, name, cfg.excludeFileName))
+    def _getExcludeFile(self, path, cfg: Config):
+        f = expanduser(join(path, cfg.excludeFileName))
         return f if isfile(f) else join(cfg.settings.CONFIG_DIR, cfg.excludeFileName)
 
     def get(self):

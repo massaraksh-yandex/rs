@@ -30,3 +30,7 @@ class Config(config.Config):
     @property
     def argSync(self) -> []:
         return self.params['argSync']
+
+    @property
+    def default_local_path(self) -> str:
+        return self.params['default_local_path']

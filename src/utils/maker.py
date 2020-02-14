@@ -1,4 +1,3 @@
-import subprocess
 import sys
 from platform.color.color import Color, Style
 from platform.color.highlighter import Highlighter, RR, CR
@@ -8,19 +7,13 @@ from src.db.workspace import Workspace
 
 
 class Maker(object):
-    def __init__(self, database, targets, jobs=None, tests=None):
-        self.maketargets = ' '.join(targets)
-        self.jobs = '-j'+str(jobs) if jobs is not None else ''
+    def __init__(self, database):
         self.db = database
-        self.cmd = ' && '.join(['cd {ws}/{makefilepath}',
-                                f'~/arcadia/ya make {self.jobs}'+' {targets}'])
-        if tests is not None:
-            self.cmd += ' && ~/arcadia/ya make -{0} --keep-going'.format('t'*int(tests))
 
     def _getRealWorkspacePath(self, ws: Workspace):
         return run(ws.host).path(ws.path).cmd('readlink -m .').call().rstrip()
 
-    def _getHighlighter(self, ws: Workspace, prj: Project):
+    def _getHighlighter(self, ws: Workspace):
         path = self._getRealWorkspacePath(ws)
 
         return Highlighter(RR(path, ws.path, Color.no), RR('/home', self.db.config.homeFolderName, Color.no),
@@ -41,16 +34,16 @@ class Maker(object):
         path = self._getRealWorkspacePath(ws)
         return Highlighter(RR(path, ws.path, Color.no), RR('/home', self.db.config.homeFolderName, Color.no))
 
-    def make(self, name, path='.', need_highlight=True):
-        project = self.db.selectone(name, Project)
-        ws = self.db.selectone(project.workspace, Workspace)
-        hl = (self._getHighlighter if need_highlight else self._getNameReplaces)(ws, project)
+    def make(self, project, ws, test_level=None, add_tests=False, add_build=False, need_highlight=True):
+        hl = (self._getHighlighter if need_highlight else self._getNameReplaces)(ws)
 
-        self.cmd = self.cmd.format(ws=ws.src, prj=name, makefilepath=path, targets=self.maketargets, jobs=self.jobs)
+        b = f'cd {ws.path} && ./ya make {project.path} {" ".join(project.additional_build if add_build else "")}'
 
-        print(str(self.cmd))
+        if test_level is not None:
+            b += f' && ./ya make -{test_level} {project.tests} {" ".join(project.additional_tests if add_tests else "")}'
+        print(str(b))
 
-        p = run(ws.host).withstderr().cmd(self.cmd)
+        p = run(ws.host).withstderr().cmd(b)
         for s in p.exec():
             sys.stderr.write(hl.highlight(s))
             sys.stderr.flush()

@@ -50,7 +50,7 @@ class ArcSync(object):
 
         for s in run(impl=source_impl, host=source_host).withstderr()\
             .cmd(f'cd {source} && cd `arc root` && arc add --all && arc commit {msg}'
-                 f' && arc push -f arc push --set-upstream users/massaraksh/{info["branch"]}').exec():
+                 f' && arc push -f {info["branch"]}').exec():
             print(s)
 
         run(host=dest_host, impl=dest_impl).withstderr()\

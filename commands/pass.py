@@ -12,7 +12,7 @@ class Pass(Endpoint):
         return ['{path} - ничего не делает, но принимает любые аргументы и опции']
 
     def _rules(self):
-        return [ Statement(['{path} всё_что_угодно'], self.process, lambda p: True) ]
+        return [Statement(['{path} всё_что_угодно'], self.process, lambda p: True)]
 
     def process(self, p: Params):
         pass

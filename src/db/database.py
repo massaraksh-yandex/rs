@@ -6,15 +6,15 @@ from src.db.project import Project
 
 
 class Database(database.Database):
-    def __init__(self, config = Config()):
+    def __init__(self, config=Config()):
         super().__init__(config, Settings())
 
-    def _getDirByType(self, type):
-        if type == Project:
+    def _getDirByType(self, t):
+        if t == Project:
             return self.settings.REMOTES_DIR
-        elif type == Workspace:
+        elif t == Workspace:
             return self.settings.WORKSPACES_DIR
-        elif type == Config:
+        elif t == Config:
             return self.settings.CONFIG_DIR
         else:
             raise Exception('Неизвестный тип')
@@ -27,18 +27,11 @@ class Database(database.Database):
 
 
 def initconfig():
-    from platform.utils.utils import readLineWithPrompt
-    from src.db.workspace import inputWorkspace
-    name = readLineWithPrompt('Имя стандартного размещения', 'workspace')
-    ws = inputWorkspace(name)
-    if ws is None:
-        print('Не могу продолжать без рабочего окружения')
-        exit()
-
-    map = {'defaultWorkspace': name,
-           'homeFolderName': '/home',
-           'excludeFileName': 'rsignore',
-           'argSync': ['-avcC', '--out-format=%f -- %b %o']}
-
-    db = Database(Config(map))
+    db = Database(Config({
+        'defaultWorkspace': 'arcadia',
+        'homeFolderName': '/home',
+        'excludeFileName': 'rsignore',
+        'argSync': ['-avcC', '--out-format=%f -- %b %o'],
+        'default_local_path': 'arcadia'
+    }))
     db.update(db.config)
