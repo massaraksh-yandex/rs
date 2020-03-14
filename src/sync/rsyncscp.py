@@ -53,9 +53,13 @@ class ArcSync(object):
                  f' && arc push -f {info["branch"]}').exec():
             print(s)
 
+        ff = f'''cd {dest} && cd `arc root` && arc fetch --all && \
+test "$(arc info --json | ./ya tool jq '.branch' -r)" = "{info["branch"]}" && \
+arc reset arcadia/users/massaraksh/{info["branch"]} --hard'''
+
         run(host=dest_host, impl=dest_impl).withstderr()\
-            .cmd(f'cd {dest} && cd `arc root` && arc fetch --all && arc reset arcadia/users/massaraksh/{info["branch"]} --hard')\
-            .call(p=True)
+            .cmd(ff)\
+            .call(p=True, throw=True)
 
     def send(self, source, destination, ws: Workspace):
         self.sync(source=source, dest=destination.split(':')[1], source_host='localhost', dest_host=ws.host,
@@ -77,11 +81,11 @@ class RsyncSync(object):
     def options(self):
         return self._options
 
-    def get(self, source, destination, **kwargs):
+    def get(self, source, destination, ws):
         self.sync(source=source, destination=destination)
 
-    def send(self, source, destination, **kwargs):
-        self.sync(source=source, destination=destination)
+    def send(self, source, destination, ws):
+        self.sync(source=source, destination=destination, ws=ws)
 
-    def sync(self, source, destination):
+    def sync(self, source, destination, ws: Workspace):
         subprocess.call(self._options + [source+'/', destination])

@@ -13,7 +13,7 @@ class Sync(object):
         config = database.config
 
         self.dry = dry
-        self.path = join(config.default_local_path, obj.path)
+        self.path = join(ws.path, obj.path)
         self.remotePath = self.ws.host + ':' + join(self.ws.path, obj.path)
         self.exclude = self._getExcludeFile(obj.path, config)
         self.backend = backend_class(args=config.argSync, exclude=self.exclude,
