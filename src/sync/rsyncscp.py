@@ -1,4 +1,5 @@
 import json
+import datetime
 import subprocess
 
 from platform.execute.local import local
@@ -43,17 +44,22 @@ class ArcSync(object):
         if info['branch'] == 'trunk':
             raise Exception('wrong branch')
 
-        if info['summary'] == '_RS_SYNC_COMMIT_' and not self.dry:
-            msg = '--amend --no-edit'
-        else:
-            msg = '-m "_RS_SYNC_COMMIT_"'
+        msg = f'-m "_RS_SYNC_COMMIT_ {datetime.datetime.now()}"'
 
         for s in run(impl=source_impl, host=source_host).withstderr()\
             .cmd(f'cd {source} && cd `arc root` && arc add --all && arc commit {msg}'
                  f' && arc push -f {info["branch"]}').exec():
             print(s)
 
-        ff = f'''cd {dest} && cd `arc root` && arc fetch --all && \
+        for s in run(impl=source_impl, host=source_host).withstderr()\
+            .cmd(f'cd {source} && cd `arc root` && test '
+                 f'`arc log {info["branch"]} --json -n1 --no-decorate | ./ya tool jq ".[0].commit" -r` '
+                 ' = '
+                 f'`arc log arcadia/users/massaraksh/{info["branch"]} --json -n1 --no-decorate | ./ya tool jq ".[0].commit" -r`'
+                 ' || arc push -f').exec():
+            print(s)
+
+        ff = f'''cd {dest} && cd `arc root` && arc fetch users/massaraksh/ && \
 test "$(arc info --json | ./ya tool jq '.branch' -r)" = "{info["branch"]}" && \
 arc reset arcadia/users/massaraksh/{info["branch"]} --hard'''
 

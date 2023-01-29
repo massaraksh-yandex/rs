@@ -40,7 +40,7 @@ class Maker(object):
         b = f'cd {ws.path} && ./ya make {project.path} {" ".join(project.additional_build if add_build else "")}'
 
         if test_level is not None:
-            b += f' && ./ya make -{test_level} {project.tests} {" ".join(project.additional_tests if add_tests else "")}'
+            b += f' && ./ya make -{test_level} -k {project.tests} {" ".join(project.additional_tests if add_tests else "")}'
         print(str(b))
 
         p = run(ws.host).withstderr().cmd(b)
